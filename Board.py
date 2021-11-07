@@ -288,8 +288,8 @@ class Board:
         return True
 
 b1 = Board()
-b1.set_square(7,0,Field.black)
-b1.set_square(0,5,Field.white)
+# b1.set_square(7,0,Field.black)
+# b1.set_square(0,5,Field.white)
 b1.play()
 
 
