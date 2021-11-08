@@ -16,6 +16,6 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if cv2.waitKey(1) & 0xFF == ord('s'):
-        cv2.imwrite(f"outputs/photo-{counter}.png", frame)
+        cv2.imwrite(f"../calibration_images/photo-{counter}.png", frame)
         counter+=1
         print(datetime.now().strftime("%H:%M:%S"))
