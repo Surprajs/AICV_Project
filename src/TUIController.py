@@ -19,13 +19,13 @@ class TUIController:
         print(f"Legal moves: {moves_counter}")
         if possible_moves:
             for move in possible_moves:
-                start_row,start_col,end_row,end_col = move
+                start_col,start_row,end_col,end_row = move
                 print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
             print()
         print(f"Legal captures: {captures_counter}")
         if possible_captures:
             for capture in possible_captures:
-                start_row,start_col,end_row,end_col = capture
+                start_col,start_row,end_col,end_row = capture
                 print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
             print()
         print(f"Moves until draw: {self.board.get_draw()}/{Const.DRAW+1}")
@@ -35,10 +35,17 @@ class TUIController:
                        Field.black_king : "B",
                        Field.empty : "_",
                        Field.out_of_play : "_"}
+        
         print(f"  {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
-        for index,row in enumerate(self.board.get_board()):
-            print(f"{Const.ROW-index} {''.join([f'[{translation[Field[square.name]]}]' for square in row])} {Const.ROW-index}")
-
+        b = self.board.get_board()
+        for row in range(Const.ROW):
+            for col in range(Const.COL):
+                if col == 0:
+                    print(f"{Const.ROW-row}  ", end="")
+                print(f"[{translation[b[col][row]]}]",end="")
+                if col == Const.COL-1:
+                    print(f"  {Const.ROW-row}", end="")
+            print()
         print(f"  {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
 
     def play(self):
@@ -55,22 +62,22 @@ class TUIController:
                 continue
 
             if self.board.can_capture():
-                status, message = self.board.can_capture(start_row,start_col)
+                status, message = self.board.can_capture(start_col,start_row)
                 if status:
                     print("Possible destinations:")
                     for destination in message:
-                        row, col = destination
+                        col, row = destination
                         print(f"{self.letter(col)}{8-row}", end=" ")
                     print()
                 else:
                     input(f"{message} Press ENTER to continue...")
                     continue
             if self.board.can_move():
-                status, message = self.board.can_move(start_row, start_col)
+                status, message = self.board.can_move(start_col,start_row)
                 if status:
                     print("Possible destinations:")
                     for destination in message:
-                        row, col = destination
+                        col, row = destination
                         print(f"{self.letter(col)}{8-row}", end=" ")
                     print()
                 else:
@@ -84,7 +91,8 @@ class TUIController:
                 input("Wrong syntax. Press ENTER to continue...")
                 continue
 
-            if not self.board.move(start_row,start_col,end_row,end_col):
+            if not self.board.move(start_col,start_row,end_col,end_row):
+                print(start_col,start_row,end_col,end_row)
                 input("This move isn't legal. Press ENTER to continue...")
                 continue
             if self.board.is_end():

@@ -1,5 +1,5 @@
 from Board import Board
-from TUIController import TUIController
+# from TUIController import TUIController
 from GUIController import GUIController
 
 b1 = Board()
