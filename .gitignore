@@ -1,3 +1,4 @@
-/calibration_images
+src/calibration/calibration_images
+src/__pycache__
 *.code-workspace
 

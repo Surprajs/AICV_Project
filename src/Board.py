@@ -17,13 +17,13 @@ class Board:
         self.__white_turn = True # move indicator
         self.__draw = 0 # draw indicator
         self.__board = [[Field.empty for _ in range(8)] for _ in range(8)] # 8x8 board
-        self.__board[7][1::2] = [Field.black]*4
-        self.__board[6][0::2] = [Field.black]*4
-        self.__board[5][1::2] = [Field.black]*4
-        self.__board[2][0::2] = [Field.white]*4
-        self.__board[1][1::2] = [Field.white]*4
-        self.__board[0][0::2] = [Field.white]*4
-        self.__board = [[Field.out_of_play if (c+r)%2 else square for c, square in enumerate(row)] for r, row in enumerate(self.__board)]
+        self.__board[0][1::2] = [Field.black]*4
+        self.__board[1][0::2] = [Field.black]*4
+        self.__board[2][1::2] = [Field.black]*4
+        self.__board[5][0::2] = [Field.white]*4
+        self.__board[6][1::2] = [Field.white]*4
+        self.__board[7][0::2] = [Field.white]*4
+        self.__board = [[Field.out_of_play if not (c+r)%2 else square for c, square in enumerate(row)] for r, row in enumerate(self.__board)]
     def letter(self,col):
         return chr(97+col)
     def digit(self,col):
@@ -68,7 +68,7 @@ class Board:
             return self.get_square(row,col) in [Field.black, Field.black_king]
     # returns direction as a number, useful for adding to initial position of the piece when it moves
     def direction(self):
-        return 1 if self.__white_turn else -1
+        return -1 if self.__white_turn else 1
 
     # no paramters: checks for captures in general, paramters: checks if particular piece can capture
     def can_capture(self, row=None, col=None):
