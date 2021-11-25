@@ -3,8 +3,9 @@ from Const import Const
 
 
 class TUIController:
-    def __init__(self, board):
+    def __init__(self, board, debug):
         self.board = board
+        self.debug = debug
 
     # for translation of the move notation
     def letter(self,col):
@@ -12,22 +13,24 @@ class TUIController:
     def digit(self,col):
         return ord(col)-97
 
-    def print_board(self):
-        moves_counter, possible_moves = self.board.count_moves()
-        captures_counter, possible_captures = self.board.count_captures()
+    def print_board(self, debug=False):
+        if debug:
+            moves_counter, possible_moves = self.board.count_moves()
+            captures_counter, possible_captures = self.board.count_captures()
         print(f"\nMove: {'white' if self.board.get_turn() else 'black'}")
-        print(f"Legal moves: {moves_counter}")
-        if possible_moves:
-            for move in possible_moves:
-                start_col,start_row,end_col,end_row = move
-                print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
-            print()
-        print(f"Legal captures: {captures_counter}")
-        if possible_captures:
-            for capture in possible_captures:
-                start_col,start_row,end_col,end_row = capture
-                print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
-            print()
+        if debug:
+            print(f"Legal moves: {moves_counter}")
+            if possible_moves:
+                for move in possible_moves:
+                    start_col,start_row,end_col,end_row = move
+                    print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
+                print()
+            print(f"Legal captures: {captures_counter}")
+            if possible_captures:
+                for capture in possible_captures:
+                    start_col,start_row,end_col,end_row = capture
+                    print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
+                print()
         print(f"Moves until draw: {self.board.get_draw()}/{Const.DRAW+1}")
         translation = {Field.white : "w",
                        Field.white_king : "W",
@@ -36,7 +39,7 @@ class TUIController:
                        Field.empty : "_",
                        Field.out_of_play : "_"}
         
-        print(f"  {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
+        print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
         b = self.board.get_board()
         for row in range(Const.ROW):
             for col in range(Const.COL):
@@ -46,12 +49,12 @@ class TUIController:
                 if col == Const.COL-1:
                     print(f"  {Const.ROW-row}", end="")
             print()
-        print(f"  {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
+        print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
 
     def play(self):
         running = True
         while running:
-            self.print_board()
+            self.print_board(self.debug)
             print("Input moves as a combination of letter and digit, e.g. a3 or f4.")
             start = input("Start: ")
             if len(start)==2 and start[0] in "abcdefgh" and start[1] in "12345678":
@@ -60,11 +63,10 @@ class TUIController:
             else:
                 input("Wrong syntax. Press ENTER to continue...")
                 continue
-
             if self.board.can_capture():
                 status, message = self.board.can_capture(start_col,start_row)
                 if status:
-                    print("Possible destinations:")
+                    print("Possible destinations: ", end="")
                     for destination in message:
                         col, row = destination
                         print(f"{self.letter(col)}{8-row}", end=" ")
@@ -75,7 +77,7 @@ class TUIController:
             if self.board.can_move():
                 status, message = self.board.can_move(start_col,start_row)
                 if status:
-                    print("Possible destinations:")
+                    print("Possible destinations: ", end="")
                     for destination in message:
                         col, row = destination
                         print(f"{self.letter(col)}{8-row}", end=" ")
