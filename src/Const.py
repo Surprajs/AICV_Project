@@ -4,7 +4,7 @@ class Const:
     ROW = 8
     COL = 8
     DRAW = 39
-    WIDTH, HEIGHT = 720, 720
+    WIDTH, HEIGHT = 1360, 720
     # colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
@@ -16,3 +16,5 @@ class Const:
     kingWhite = pygame.image.load('./graphics/white_king_crown.png')
     source = pygame.image.load('./graphics/source.png')
     destination = pygame.image.load('./graphics/destination.png')
+    turnWhite = pygame.image.load('./graphics/w_turn.png')
+    turnBlack = pygame.image.load('./graphics/b_turn.png')
