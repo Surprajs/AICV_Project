@@ -1,6 +1,7 @@
 import pygame
 
 class Const:
+    # Board
     ROW = 8
     COL = 8
     DRAW = 39
@@ -18,3 +19,7 @@ class Const:
     destination = pygame.image.load('./graphics/destination.png')
     turnWhite = pygame.image.load('./graphics/w_turn.png')
     turnBlack = pygame.image.load('./graphics/b_turn.png')
+    # AI constants
+    SCORE_WIN = 10_000
+    SCORE_LOST = -10_000
+
