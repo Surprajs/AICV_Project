@@ -3,8 +3,9 @@ from Const import Const
 
 
 class TUIController:
-    def __init__(self, board, debug):
+    def __init__(self, board, ai, debug):
         self.board = board
+        self.ai = ai
         self.debug = debug
 
     # for translation of the move notation
@@ -14,6 +15,7 @@ class TUIController:
         return ord(col)-97
 
     def print_board(self, debug=False):
+        print(f"Score: {self.ai.get_score()}")
         if debug:
             moves_counter, possible_moves = self.board.count_moves()
             captures_counter, possible_captures = self.board.count_captures()
