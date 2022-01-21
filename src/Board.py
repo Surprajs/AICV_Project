@@ -43,7 +43,24 @@ class Board:
     # reset draw counter (if capture was made)
     def reset_draw_counter(self):
         self.__draw = 0
-
+    def print_board(self):
+        translation = {Field.white : "w",
+                Field.white_king : "W",
+                Field.black : "b",
+                Field.black_king : "B",
+                Field.empty : "_",
+                Field.out_of_play : "_"}
+        print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
+        b = self.__board
+        for row in range(Const.ROW):
+            for col in range(Const.COL):
+                if col == 0:
+                    print(f"{Const.ROW-row}  ", end="")
+                print(f"[{translation[b[col][row]]}]",end="")
+                if col == Const.COL-1:
+                    print(f"  {Const.ROW-row}", end="")
+            print()
+        print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
     # getters
     def get_board(self):
         return self.__board
@@ -55,6 +72,12 @@ class Board:
 
     def get_draw(self):
         return self.__draw
+
+    def change_board(self, new_board):
+        self.__board = new_board.get_board()
+        self.__draw = new_board.get_draw()
+        self.__white_turn = new_board.get_turn()
+
 
     def get_turn(self):
         return self.__white_turn

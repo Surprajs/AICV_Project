@@ -56,6 +56,64 @@ class TUIController:
     def play(self):
         running = True
         while running:
+            if self.ai.get_ai_color() == self.board.get_turn():
+                self.ai.play()
+            else:
+                self.print_board(self.debug)
+                print("Input moves as a combination of letter and digit, e.g. a3 or f4.")
+                start = input("Start: ")
+                if len(start)==2 and start[0] in "abcdefgh" and start[1] in "12345678":
+                    start_row = 8-int(start[1])
+                    start_col = self.digit((start[0]))
+                else:
+                    input("Wrong syntax. Press ENTER to continue...")
+                    continue
+                if self.board.can_capture():
+                    status, message = self.board.can_capture(start_col,start_row)
+                    if status:
+                        print("Possible destinations: ", end="")
+                        for destination in message:
+                            col, row = destination
+                            print(f"{self.letter(col)}{8-row}", end=" ")
+                        print()
+                    else:
+                        input(f"{message} Press ENTER to continue...")
+                        continue
+                if self.board.can_move():
+                    status, message = self.board.can_move(start_col,start_row)
+                    if status:
+                        print("Possible destinations: ", end="")
+                        for destination in message:
+                            col, row = destination
+                            print(f"{self.letter(col)}{8-row}", end=" ")
+                        print()
+                    else:
+                        input(f"{message} Press ENTER to continue...")
+                        continue
+                end = input("End: ")
+                if len(end)==2 and end[0] in "abcdefgh" and end[1] in "12345678":      
+                    end_row = 8-int(end[1])
+                    end_col = self.digit((end[0]))
+                else:
+                    input("Wrong syntax. Press ENTER to continue...")
+                    continue
+
+                if not self.board.move(start_col,start_row,end_col,end_row):
+                    print(start_col,start_row,end_col,end_row)
+                    input("This move isn't legal. Press ENTER to continue...")
+                    continue
+            if self.board.is_end():
+                print(f"End of the game. {'Black' if self.board.get_turn() else 'White'} won!")
+                running = False
+
+
+
+
+
+"""
+def play(self):
+        running = True
+        while running:
             self.print_board(self.debug)
             print("Input moves as a combination of letter and digit, e.g. a3 or f4.")
             start = input("Start: ")
@@ -102,5 +160,9 @@ class TUIController:
             if self.board.is_end():
                 print(f"End of the game. {'Black' if self.board.get_turn() else 'White'} won!")
                 running = False
+
+
+
+"""
 
 

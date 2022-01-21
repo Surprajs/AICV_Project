@@ -19,6 +19,14 @@ class Tree:
     def get_parent(self):
         return self.parent
 
+    def cut_tree(self, board):
+        for child in self.children:
+            child.get_value().print_board()
+        self.children = list(filter(lambda x: x.val.get_board() == board, self.children))
+        # if len(self.children) == 0:
+        #     print(board)
+        return self.children[0]
+
     def get_child(self, idx):
         return self.children[idx]
 
@@ -35,6 +43,14 @@ class Tree:
         return  not self.children
         
 if __name__ == "__main__":
-    t1 = Tree(5)
+    t1 = Tree((5,5))
+    t1.add_child((1,2))
+    t1.add_child((1,3))
+    t1.add_child((1,4))
+    print(t1.get_children())
+    print(t1)
+    t1 = t1.cut_tree(3)
+    print(t1)
+
     
 

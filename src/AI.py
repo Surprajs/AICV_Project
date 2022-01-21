@@ -6,11 +6,14 @@ from Tree import Tree
 
 
 class AI:
-    def __init__(self, board, white_ai=False, depth=5):
+    def __init__(self, board, white_ai=True, depth=1):
         self.board = board
         self.white_ai = white_ai
         self.depth = depth
         self.tree = None
+
+    def get_ai_color(self):
+        return self.white_ai
 
     def get_score(self, this_board=None):
         if not this_board:
@@ -44,48 +47,85 @@ class AI:
 
 
 
-    def go_deeper(self, board, current_depth, node):
+    def minmax(self, current_depth, node, alpha, beta, is_maximizing):
+        best_node = None
         if current_depth == self.depth:
-            return
+            # print(alpha)
+            # print(beta)
+            return self.get_score(node.get_value()), None
 
 
         if not node.is_external():
+            minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
             for child in node.get_children():
-                self.go_deeper(deepcopy(board), current_depth+1, child)
+                score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
+                if is_maximizing:
+                    if score > minmax_score:
+                        minmax_score = score
+                        alpha = max(alpha, score)
+                        best_node = child
+                else:
+                    if score < minmax_score:
+                        minmax_score = score
+                        beta = min(beta, score)
+                        best_node = child
+
+                if beta <= alpha:
+                    break
+            return score, best_node
         else:
-            _, moves = board.count_moves()
-            _, captures = board.count_captures()
-            
-            if captures:
-                for capture in captures:
-                    start_col, start_row, end_col, end_row = capture
-                    new_board = deepcopy(board)
-                    new_board.move(start_col, start_row, end_col, end_row)
-                    child = node.add_child(new_board)
-                    self.go_deeper(new_board, current_depth+1, child)
-                    
+            _, moves = node.get_value().count_moves()
+            _, captures = node.get_value().count_captures()
+            moves.extend(captures)
             if moves:
+                minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
                 for move in moves:
                     start_col, start_row, end_col, end_row = move
-                    new_board = deepcopy(board)
+                    new_board = deepcopy(node.get_value())
+                    turn = new_board.get_turn()
                     new_board.move(start_col, start_row, end_col, end_row)
-                    child = node.add_child(new_board)
-                    self.go_deeper(new_board, current_depth+1, child)
 
+                    child = node.add_child(new_board)
+                    score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
+                    if is_maximizing:
+                        if score > minmax_score:
+                            minmax_score = score
+                            alpha = max(alpha, score)
+                            best_node = child
+                    else:
+                        if score < minmax_score:
+                            minmax_score = score
+                            beta = min(beta, score)
+                            best_node = child
+
+                    if beta <= alpha:
+                        break
+                # print("kurwa")
+                # print(best_node)
+                return minmax_score, best_node
+            else:
+                return self.get_score(node.get_value()), best_node
 
 
     def play(self):
         if not self.tree:
             self.tree = Tree(deepcopy(self.board))
+            print("chuj")
         else:
-            # cut other than opponent's move
-            pass
+            print("kutas")
+            self.tree = self.tree.cut_tree(self.board.get_board())
 
         
-        self.go_deeper(self.board, 0, self.tree)
-        # get best move
-        # do best move  
-        # cut the rest (other than best move)
+        _, node = self.minmax(0, self.tree, Const.SCORE_LOST, Const.SCORE_WIN, True)
+        # start_col, start_row, end_col, end_row = move
+        # self.board.move(start_col, start_row, end_col, end_row)
+        # print(node is self.tree)
+        print(self.board.get_turn())
+        self.board.change_board(node.get_value())
+        print(self.board.get_turn())
+        self.board.print_board()
+        print(len(self.tree.get_children()))
+        self.tree = self.tree.cut_tree(self.board.get_board())
         
 
 
@@ -93,8 +133,8 @@ class AI:
 
 if __name__ == "__main__":
     b1 = Board()
-    ai = AI(b1)
+    ai = AI(b1, depth=6)
     t1 = TUIController(b1, ai, True)
-
+    # ai.play()
     t1.play()
 
