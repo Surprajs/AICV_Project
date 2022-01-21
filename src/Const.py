@@ -5,7 +5,7 @@ class Const:
     ROW = 8
     COL = 8
     DRAW = 39
-    WIDTH, HEIGHT = 1360, 720
+    WIDTH, HEIGHT = 720, 720
     # colors
     WHITE = (255, 255, 255)
     BLACK = (0, 0, 0)
