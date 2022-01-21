@@ -1,8 +1,17 @@
 import pygame
 import sys
 import cv2
+from enum import Enum
 from Const import Const
+from ConstGraphic import ConstGraphic
 from Board import Field
+
+
+class State(Enum):
+    start = 0
+    game = 1
+    results = 2
+    end = -1
 
 
 class GUIController:
@@ -10,12 +19,16 @@ class GUIController:
     def __init__(self, board):
         self.board = board
         self.marked = [None, None]
-        self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
-        self.camera = cv2.VideoCapture(0)
+        self.state = State.start
+        self.WIN = None
+        self.camera = None
+        self.opponent = False;
+        self.depth = 3;
+        self.camera_WN = False;
 
     def print_board(self):
-        rect = Const.background.get_rect()
-        self.WIN.blit(Const.background, rect)
+        rect = ConstGraphic.background.get_rect()
+        self.WIN.blit(ConstGraphic.background, rect)
         pygame.display.update()
 
     def print_piece(self):
@@ -23,13 +36,13 @@ class GUIController:
         for row in range(Const.ROW):
             for col in range(Const.COL):
                 if b[col][row] == Field.black:
-                    self.WIN.blit(Const.pawnBlack, (col * 80 + 40, row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.pawnBlack, (col * 80 + 40, row * 80 + 40))
                 elif b[col][row] == Field.white:
-                    self.WIN.blit(Const.pawnWhite, (col * 80 + 40, row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.pawnWhite, (col * 80 + 40, row * 80 + 40))
                 elif b[col][row] == Field.black_king:
-                    self.WIN.blit(Const.kingBlack, (col * 80 + 40, row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.kingBlack, (col * 80 + 40, row * 80 + 40))
                 elif b[col][row] == Field.white_king:
-                    self.WIN.blit(Const.kingWhite, (col * 80 + 40, row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.kingWhite, (col * 80 + 40, row * 80 + 40))
         pygame.display.flip()
 
     def check_position(self, pos):
@@ -59,16 +72,16 @@ class GUIController:
             for move in possible_moves:
                 start_col, start_row, end_col, end_row = move
                 if start_col == x and start_row == y:
-                    self.WIN.blit(Const.source, (start_col * 80 + 40, start_row * 80 + 40))
-                    self.WIN.blit(Const.destination, (end_col * 80 + 40, end_row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
                     pygame.display.flip()
                     self.marked = [start_col, start_row]
         if possible_captures:
             for capture in possible_captures:
                 start_col, start_row, end_col, end_row = capture
                 if start_col == x and start_row == y:
-                    self.WIN.blit(Const.source, (start_col * 80 + 40, start_row * 80 + 40))
-                    self.WIN.blit(Const.destination, (end_col * 80 + 40, end_row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
+                    self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
                     pygame.display.flip()
                     self.marked = [start_col, start_row]
 
@@ -77,21 +90,110 @@ class GUIController:
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         surf = pygame.surfarray.make_surface(frame)
-        self.WIN.blit(surf, (720, 0))
+        self.WIN.blit(surf, (760, 0))
         if self.board.get_turn():
-            self.WIN.blit(Const.turnWhite, (720, 480))
+            self.WIN.blit(ConstGraphic.turnWhite, (760, 480))
         else:
-            self.WIN.blit(Const.turnBlack, (720, 480))
+            self.WIN.blit(ConstGraphic.turnBlack, (760, 480))
         pygame.display.flip()
 
-    def play(self):
+    def menu_position(self, pos):
+        if pos[1] in range(45, 225 + 1):
+            if pos[0] in range(45, 338 + 1):
+                self.WIN.blit(ConstGraphic.p_ai_click, (45, 45))
+                self.WIN.blit(ConstGraphic.p_human, (382, 45))
+                self.WIN.blit(ConstGraphic.depth_3_click, (45, 270))
+                self.WIN.blit(ConstGraphic.depth_5, (270, 270))
+                self.WIN.blit(ConstGraphic.depth_8, (495, 270))
+                self.opponent = True
+            if pos[0] in range(382, 675 + 1):
+                self.WIN.blit(ConstGraphic.menu_bg, (0, 0))
+                self.WIN.blit(ConstGraphic.p_ai, (45, 45))
+                self.WIN.blit(ConstGraphic.p_human_click, (382, 45))
+                if self.camera_WN:
+                    self.WIN.blit(ConstGraphic.w_camera_click, (45, 405))
+                    self.WIN.blit(ConstGraphic.no_camera, (382, 405))
+                else:
+                    self.WIN.blit(ConstGraphic.w_camera, (45, 405))
+                    self.WIN.blit(ConstGraphic.no_camera_click, (382, 405))
+                self.WIN.blit(ConstGraphic.start, (495, 585))
+                self.opponent = False
+
+        if self.opponent:
+            if pos[1] in range(270, 360 + 1):
+                if pos[0] in range(45, 225 + 1):
+                    self.WIN.blit(ConstGraphic.depth_3_click, (45, 270))
+                    self.WIN.blit(ConstGraphic.depth_5, (270, 270))
+                    self.WIN.blit(ConstGraphic.depth_8, (495, 270))
+                    self.depth = 3
+                if pos[0] in range(270, 450 + 1):
+                    self.WIN.blit(ConstGraphic.depth_3, (45, 270))
+                    self.WIN.blit(ConstGraphic.depth_5_click, (270, 270))
+                    self.WIN.blit(ConstGraphic.depth_8, (495, 270))
+                    self.depth = 5
+                if pos[0] in range(495, 675 + 1):
+                    self.WIN.blit(ConstGraphic.depth_3, (45, 270))
+                    self.WIN.blit(ConstGraphic.depth_5, (270, 270))
+                    self.WIN.blit(ConstGraphic.depth_8_click, (495, 270))
+                    self.depth = 8
+
+        if pos[1] in range(405, 495 + 1):
+            if pos[0] in range(45, 338 + 1):
+                self.WIN.blit(ConstGraphic.w_camera_click, (45, 405))
+                self.WIN.blit(ConstGraphic.no_camera, (382, 405))
+                self.camera_WN = True
+            if pos[0] in range(382, 675 + 1):
+                self.WIN.blit(ConstGraphic.w_camera, (45, 405))
+                self.WIN.blit(ConstGraphic.no_camera_click, (382, 405))
+                self.camera_WN = False
+
+        pygame.display.flip()
+
+    def start(self):
+        self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
+        rect = ConstGraphic.background.get_rect()
+        self.WIN.blit(ConstGraphic.menu_bg, rect)
+        self.WIN.blit(ConstGraphic.p_ai, (45, 45))
+        self.WIN.blit(ConstGraphic.p_human_click, (382, 45))
+        self.WIN.blit(ConstGraphic.w_camera, (45, 405))
+        self.WIN.blit(ConstGraphic.no_camera_click, (382, 405))
+        self.WIN.blit(ConstGraphic.start, (495, 585))
+        pygame.display.set_caption('Start')
+        pygame.display.flip()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.WIN = pygame.display.quit()
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    if pos[0] in range(495, 675 + 1) and pos[1] in range(585, 675 + 2):
+                        running = False
+                        self.WIN = pygame.display.quit()
+                    else:
+                        self.menu_position(pos)
+        self.state = State.game
+
+    def game(self):
+        if self.camera_WN:
+            self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
+            self.WIN.blit(ConstGraphic.game_bg, (720, 0))
+            self.camera = cv2.VideoCapture(0)
+        else:
+            self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         pygame.display.set_caption('Checkers')
         self.print_board()
         self.print_piece()
         running = True
         while running:
+            if self.camera_WN:
+                self.get_frame()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    if self.camera_WN:
+                        self.camera.release()
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -99,7 +201,56 @@ class GUIController:
                     self.check_position(pos)
             if self.board.is_end():
                 running = False
-                pygame.quit()
-                self.vid.release()
-                sys.exit()
-            self.get_frame()
+                if self.camera_WN:
+                    self.camera.release()
+                self.state = State.results
+                self.WIN = pygame.display.quit()
+
+    def results(self):
+        self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
+        self.print_board()
+        self.print_piece()
+        self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
+        self.WIN.blit(ConstGraphic.exit, (765, 585))
+        self.WIN.blit(ConstGraphic.p_again, (1102, 585))
+        if self.board.is_draw():
+            self.WIN.blit(ConstGraphic.r_draw, (765, 45))
+        elif self.board.get_turn():
+            self.WIN.blit(ConstGraphic.r_black, (765, 45))
+        else:
+            self.WIN.blit(ConstGraphic.r_white, (765, 45))
+
+        pygame.display.set_caption('Results')
+        pygame.display.flip()
+        running = True
+        while running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.WIN = pygame.display.quit()
+                    pygame.quit()
+                    sys.exit()
+                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    pos = pygame.mouse.get_pos()
+                    if pos[0] in range(765, 1058 + 1) and pos[1] in range(585, 675 + 2):
+                        running = False
+                        self.WIN = pygame.display.quit()
+                        self.state = State.end
+                    elif pos[0] in range(1102, 1395 + 1) and pos[1] in range(585, 675 + 2):
+                        running = False
+                        self.WIN = pygame.display.quit()
+                        self.state = State.start
+                        self.depth = 3
+                        self.camera_WN = False
+                        self.opponent = False
+
+
+    def play(self):
+        while self.state != State.end:
+            {
+                State.start: self.start(),
+                State.game: self.game(),
+                State.results: self.results(),
+                State.end: None,
+            }[self.state]
+        pygame.quit()
+        sys.exit()
