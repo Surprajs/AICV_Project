@@ -19,14 +19,13 @@ class Board:
         self.__white_turn = True  # move indicator
         self.__draw = 0  # draw indicator
         self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]  # 8x8 board
-        self.__board[0][7] = Field.white_king
-        self.__board[1][6] = Field.black
-        self.__board[1][4] = Field.black
-        self.__board[1][2] = Field.black
-        self.__board[3][4] = Field.black
-        self.__board[5][2] = Field.black
-        self.__board[3][2] = Field.black
-        """
+        # self.__board[0][7] = Field.white_king
+        # self.__board[1][6] = Field.black
+        # # self.__board[1][4] = Field.black
+        # self.__board[1][2] = Field.black
+        # # self.__board[3][4] = Field.black
+        # self.__board[5][2] = Field.black
+        # self.__board[3][2] = Field.black
         for row in range(Const.ROW):
             for col in range(Const.COL):
                 if (row+col)%2:
@@ -37,9 +36,6 @@ class Board:
                 else:
                     self.__board[col][row] == Field.out_of_play
                 
-        self.__board[5][4] = Field.black
-        self.__board[2][1] = Field.empty
-        """
 
 
 
@@ -327,14 +323,14 @@ class Board:
                 for i in [-1, 1]:
                     if self.legal_move(col, row, col + i, row + self.direction()):
                         counter += 1
-                        all_moves.append([(col, row), (col + i, row + self.direction())])
+                        all_moves.append([[(col, row), (col + i, row + self.direction())]])
             if square in [Field.white_king, Field.black_king]:
                 for i in [-1, 1]:
                     for j in [-1, 1]:
                         if self.legal_move(col, row, col + i, row + j):
                             counter += 1
                             # all_moves.append(f"{row}{col}->{row+i}{col+j}")
-                            all_moves.append([(col, row), (col + i, row + j)])
+                            all_moves.append([[(col, row), (col + i, row + j)]])
             return counter, all_moves
         else:  # no parameters passed, counts all possible moves
             if self.can_capture():

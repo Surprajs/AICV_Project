@@ -80,11 +80,13 @@ class AI:
             if moves:
                 minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
                 for move in moves:
-                    start_col, start_row, end_col, end_row = move
                     new_board = deepcopy(node.get_value())
-                    turn = new_board.get_turn()
-                    new_board.move(start_col, start_row, end_col, end_row)
-
+                    for m in move:
+                        # print(m)
+                        start, end = m
+                        start_col, start_row = start
+                        end_col, end_row = end
+                        new_board.move(start_col, start_row, end_col, end_row)
                     child = node.add_child(new_board)
                     score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
                     if is_maximizing:

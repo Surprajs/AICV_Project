@@ -24,17 +24,17 @@ class TUIController:
             print(f"Legal moves: {moves_counter}")
             if possible_moves:
                 for move in possible_moves:
-                    # print(move)
-                    start, end = move
-                    start_col, start_row = start
-                    end_col, end_row = end
-
-                    print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
-                print()
+                    print(move)
+                    for m in move:
+                        start, end = m
+                        start_col, start_row = start
+                        end_col, end_row = end
+                        print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
+                    print()
             print(f"Legal captures: {captures_counter}")
             if possible_captures:
                 for capture in possible_captures:
-                    # print(capture)
+                    print(capture)
                     for move in capture:
                         start, end = move
                         start_col, start_row = start
@@ -65,8 +65,8 @@ class TUIController:
     def play(self):
         running = True
         while running:
-            # if self.ai.get_ai_color() == self.board.get_turn():
-            if False:
+            if self.ai.get_ai_color() == self.board.get_turn():
+            # if False:
                 self.ai.play()
             else:
                 self.print_board(self.debug)
