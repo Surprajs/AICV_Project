@@ -52,12 +52,12 @@ class AI:
         if current_depth == self.depth:
             # print(alpha)
             # print(beta)
-            print("here???")
-            return self.get_score(node.get_value()), 5
+            # print("here???")
+            return self.get_score(node.get_value()), None
 
 
         if not node.is_external():
-            print("AAA")
+            # print("AAA")
             minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
             for child in node.get_children():
                 score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
@@ -72,8 +72,8 @@ class AI:
                         beta = min(beta, score)
                         best_node = child
 
-                if beta <= alpha:
-                    break
+                # if beta <= alpha:
+                #     break
             return score, best_node
         else:
             _, moves = node.get_value().count_moves()
@@ -122,12 +122,10 @@ class AI:
     def play(self):
         if not self.tree:
             self.tree = Tree(deepcopy(self.board))
-            print("chuj")
         else:
-            print("kutas")
-            print(len(self.tree.get_children()))
             self.tree = self.tree.cut_tree(self.board.get_board())
-
+            if not self.tree:
+                self.tree = Tree(deepcopy(self.board))
         
         _, node = self.minmax(0, self.tree, Const.SCORE_LOST, Const.SCORE_WIN, True)
         # start_col, start_row, end_col, end_row = move

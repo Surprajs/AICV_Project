@@ -49,12 +49,10 @@ class GUIController:
     def check_position(self, pos):
         _, possible_moves = self.board.count_moves()
         _, possible_captures = self.board.count_captures()
-        print(possible_moves)
-        print(possible_captures)
+
         print(self.board.can_capture())
         x = (pos[0] - 40) // 80
         y = ((pos[1] - 40) // 80)
-        print(self.board.get_square(x,y))
         if self.marked:
             if possible_moves:
                 for move in possible_moves:

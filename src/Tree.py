@@ -21,14 +21,9 @@ class Tree:
 
     def cut_tree(self, board):
         print(len(self.children))
-        if len(self.children) == 0:
-            print("CHUJ")
-        # for child in self.children:
-        #     child.get_value().print_board()
+
         self.children = list(filter(lambda x: x.val.get_board() == board, self.children))
-        # if len(self.children) == 0:
-        #     print(board)
-        return self.children[0]
+        return self.children[0] if self.children else None
 
     def get_child(self, idx):
         return self.children[idx]

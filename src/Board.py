@@ -263,17 +263,12 @@ class Board:
         if square in [Field.white, Field.black]:
                 for i in [-1, 1]:
                     if board.legal_capture(end_col, end_row, end_col + 2*i, end_row + 2*board.direction()):
-                        print((end_col, end_row, end_col + 2*i, end_row + 2*board.direction()))
-                        print(board.get_square(4,3))
-                        print(board.get_turn())
-                        print("here")
                         legal_captures.append((end_col, end_row,end_col + 2*i, end_row + 2*board.direction()))
                         counter += 1
         if square in [Field.white_king, Field.black_king]:
             for i in [-1, 1]:
                 for j in [-1, 1]:
                     if board.legal_capture(end_col, end_row, end_col + 2*j, end_row + 2*i):
-                        print("here")
                         legal_captures.append((end_col, end_row,end_col + 2*j, end_row + 2*i))
                         counter += 1
             
@@ -300,7 +295,6 @@ class Board:
                         temp_board = deepcopy(self)
                         captures = []
                         self.capture_further(temp_board, col, row, col+2*i, row+2*self.direction(), None, captures)
-                        print(captures)
                         for capture in captures:
                             all_captures.append(capture)
                         
@@ -313,8 +307,6 @@ class Board:
                             captures = []
                             counter += 1
                             self.capture_further(temp_board, col, row, col+2*j, row+2*i, None, captures)
-                            for capture in captures:
-                                print(capture)
                             for capture in captures:
                                 all_captures.append(capture)
 

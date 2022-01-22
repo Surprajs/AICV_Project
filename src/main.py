@@ -14,7 +14,7 @@ if args.cli:
     t1 = TUIController(b1, args.debug)
     t1.play()
 else:
-    ai = AI(b1, depth=2)
+    ai = AI(b1, depth=8)
     g1 = GUIController(b1, ai)
     g1.play()
   
