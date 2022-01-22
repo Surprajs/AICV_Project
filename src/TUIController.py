@@ -24,7 +24,7 @@ class TUIController:
             print(f"Legal moves: {moves_counter}")
             if possible_moves:
                 for move in possible_moves:
-                    print(move)
+                    # print(move)
                     start, end = move
                     start_col, start_row = start
                     end_col, end_row = end
@@ -35,8 +35,8 @@ class TUIController:
             if possible_captures:
                 for capture in possible_captures:
                     # print(capture)
-                    for idx in range(0,len(capture),2):
-                        start, end = capture[idx], capture[idx+1]
+                    for move in capture:
+                        start, end = move
                         start_col, start_row = start
                         end_col, end_row = end
                         print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")

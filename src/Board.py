@@ -201,25 +201,13 @@ class Board:
         if start_square in [Field.white_king, Field.black_king]:
             return end_square == Field.empty and abs(end_row - start_row) == 2 and self.is_enemy(col_between, row_between)
 
-    
+    """ 
     def capture_further(self, board, start_col, start_row, end_col, end_row, list_of_captures, previous):
-        # print("------")
-        # print(previous)
-        # print(f"({start_col},{start_row})->({end_col},{end_row})")
-        # print(list_of_captures)
-        # print(append_idx)
         idx = 0
         if previous in list_of_captures:
             idx = list_of_captures.index(previous)
-            # print(len(list_of_captures))
-            # print(idx)
-            list_of_captures[idx] += [(start_col,start_row),(end_col,end_row)]
-        else:
-            list_of_captures[0] += [(start_col,start_row),(end_col,end_row)]
+        list_of_captures[idx] += [(start_col,start_row),(end_col,end_row)]
             
-        # print(list_of_captures)
-
-
         board.move(start_col,start_row,end_col,end_row)
         square = board.get_square(end_col, end_row)
         counter = 0
@@ -235,30 +223,50 @@ class Board:
                     if board.legal_capture(end_col, end_row, end_col + 2*j, end_row + 2*i):
                         legal_captures.append((end_col, end_row,end_col + 2*j, end_row + 2*i))
                         counter += 1
-        # print(counter)
-        # print(legal_captures)
         if counter > 1:
             for _ in range(counter):
-                print("here")
-
                 last = deepcopy(list_of_captures[idx])
                 list_of_captures.append(last)
             del list_of_captures[idx]
         for legal_capture in legal_captures:
-            print("HHHH")
-            print(legal_capture)
             temp_board = deepcopy(board)
             new_start_col, new_start_row, new_end_col, new_end_row = legal_capture
             previous = 0
             for i, captures in enumerate(list_of_captures):
                if captures[-1] == (end_col,end_row) and captures[-2] == (start_col,start_row):
                    previous = list_of_captures[i]
-                   print(f"previous: {previous}")
                    break
-            print(list_of_captures)
             self.capture_further(temp_board, new_start_col, new_start_row, new_end_col, new_end_row, list_of_captures, previous)      
+    """
+    def capture_further(self, board, start_col, start_row, end_col, end_row, current_path, list_of_captures):
+        current_path.append([(start_col,start_row),(end_col,end_row)])
 
 
+        board.move(start_col,start_row,end_col,end_row)
+        square = board.get_square(end_col, end_row)        
+        counter = 0
+        legal_captures = list()
+        if square in [Field.white, Field.black]:
+                for i in [-1, 1]:
+                    if board.legal_capture(end_col, end_row, end_col + 2*i, end_row + 2*board.direction()):
+
+                        counter += 1
+        if square in [Field.white_king, Field.black_king]:
+            for i in [-1, 1]:
+                for j in [-1, 1]:
+                    if board.legal_capture(end_col, end_row, end_col + 2*j, end_row + 2*i):
+                        legal_captures.append((end_col, end_row,end_col + 2*j, end_row + 2*i))
+                        counter += 1
+        
+        if counter == 0:
+            list_of_captures.append(current_path)
+            return
+        for legal_capture in legal_captures:
+            new_start_col, new_start_row, new_end_col, new_end_row = legal_capture
+            new_board = deepcopy(board)
+            new_path = deepcopy(current_path)
+            self.capture_further(new_board, new_start_col, new_start_row, new_end_col, new_end_row, new_path, list_of_captures)
+        
 
 
     # no paramters: count captures in general, paramters: count captures of particular piece
@@ -274,8 +282,8 @@ class Board:
                     if self.legal_capture(col, row, col + 2*i, row + 2*self.direction()):
                         counter += 1
                         temp_board = deepcopy(self)
-                        captures = [[]]
-                        self.capture_further(temp_board, col, row, col+2*i, row+2*self.direction(), captures, None)
+                        captures = []
+                        self.capture_further(temp_board, col, row, col+2*i, row+2*self.direction(), [], captures)
                         for capture in captures:
                             all_captures.append(capture)
                         
@@ -284,12 +292,13 @@ class Board:
                 for i in [-1, 1]:
                     for j in [-1, 1]:
                         if self.legal_capture(col, row, col + 2*j, row + 2*i):
-                            counter += 1
                             temp_board = deepcopy(self)
                             captures = [[]]
-                            self.capture_further(temp_board, col, row, col+2*j, row+2*i, captures, None)
+                            counter += 1
+                            self.capture_further(temp_board, col, row, col+2*j, row+2*i, [], captures)
                             for capture in captures:
                                 all_captures.append(capture)
+
             return counter, all_captures
         else:  # no parameters passed, counts all possible captures
             if self.__white_turn:
