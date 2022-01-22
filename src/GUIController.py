@@ -16,8 +16,9 @@ class State(Enum):
 
 class GUIController:
 
-    def __init__(self, board):
+    def __init__(self, board, ai):
         self.board = board
+        self.ai = ai
         self.marked = [None, None]
         self.state = State.start
         self.WIN = None
@@ -190,15 +191,18 @@ class GUIController:
         while running:
             if self.camera_WN:
                 self.get_frame()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    if self.camera_WN:
-                        self.camera.release()
-                    pygame.quit()
-                    sys.exit()
-                elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                    pos = pygame.mouse.get_pos()
-                    self.check_position(pos)
+            if self.ai.get_ai_color() == self.board.get_turn():
+                self.ai.play()
+            else:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        if self.camera_WN:
+                            self.camera.release()
+                        pygame.quit()
+                        sys.exit()
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        pos = pygame.mouse.get_pos()
+                        self.check_position(pos)
             if self.board.is_end():
                 running = False
                 if self.camera_WN:
