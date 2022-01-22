@@ -20,9 +20,11 @@ class Tree:
         return self.parent
 
     def cut_tree(self, board):
-        print("heere")
-        for child in self.children:
-            child.get_value().print_board()
+        print(len(self.children))
+        if len(self.children) == 0:
+            print("CHUJ")
+        # for child in self.children:
+        #     child.get_value().print_board()
         self.children = list(filter(lambda x: x.val.get_board() == board, self.children))
         # if len(self.children) == 0:
         #     print(board)

@@ -40,7 +40,7 @@ class TUIController:
                         start_col, start_row = start
                         end_col, end_row = end
                         print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
-                    print()
+                    # print()
                 print()
         print(f"Moves until draw: {self.board.get_draw()}/{Const.DRAW+1}")
         translation = {Field.white : "w",
@@ -65,8 +65,8 @@ class TUIController:
     def play(self):
         running = True
         while running:
-            if self.ai.get_ai_color() == self.board.get_turn():
-            # if False:
+            # if self.ai.get_ai_color() == self.board.get_turn():
+            if False:
                 self.ai.play()
             else:
                 self.print_board(self.debug)

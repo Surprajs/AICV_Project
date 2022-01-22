@@ -2,6 +2,7 @@ import argparse
 from Board import Board
 from TUIController import TUIController
 from GUIController import GUIController
+from AI import AI
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 parser.add_argument('--cli',type=bool,default=False,help='Use depth when detecting faces')
@@ -13,6 +14,7 @@ if args.cli:
     t1 = TUIController(b1, args.debug)
     t1.play()
 else:
-    g1 = GUIController(b1)
+    ai = AI(b1, depth=2)
+    g1 = GUIController(b1, ai)
     g1.play()
   

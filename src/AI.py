@@ -6,7 +6,7 @@ from Tree import Tree
 
 
 class AI:
-    def __init__(self, board, white_ai=True, depth=1):
+    def __init__(self, board, white_ai=True, depth=2):
         self.board = board
         self.white_ai = white_ai
         self.depth = depth
@@ -52,10 +52,12 @@ class AI:
         if current_depth == self.depth:
             # print(alpha)
             # print(beta)
-            return self.get_score(node.get_value()), None
+            print("here???")
+            return self.get_score(node.get_value()), 5
 
 
         if not node.is_external():
+            print("AAA")
             minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
             for child in node.get_children():
                 score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
@@ -76,11 +78,19 @@ class AI:
         else:
             _, moves = node.get_value().count_moves()
             _, captures = node.get_value().count_captures()
+            # if current_depth == 0:
+            #     for capture in captures:
+            #     #     print(capture)
+            #     # print("----")
+                
+
             moves.extend(captures)
             if moves:
                 minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
                 for move in moves:
                     new_board = deepcopy(node.get_value())
+
+                    # print(f"move: {move}")
                     for m in move:
                         # print(m)
                         start, end = m
@@ -115,6 +125,7 @@ class AI:
             print("chuj")
         else:
             print("kutas")
+            print(len(self.tree.get_children()))
             self.tree = self.tree.cut_tree(self.board.get_board())
 
         
@@ -122,10 +133,10 @@ class AI:
         # start_col, start_row, end_col, end_row = move
         # self.board.move(start_col, start_row, end_col, end_row)
         # print(node is self.tree)
-        print(self.board.get_turn())
+        # print(self.board.get_turn())
         self.board.change_board(node.get_value())
-        print(self.board.get_turn())
-        self.board.print_board()
+        # print(self.board.get_turn())
+        # self.board.print_board()
         print(len(self.tree.get_children()))
         self.tree = self.tree.cut_tree(self.board.get_board())
         

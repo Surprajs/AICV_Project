@@ -20,12 +20,25 @@ class Board:
         self.__draw = 0  # draw indicator
         self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]  # 8x8 board
         # self.__board[0][7] = Field.white_king
-        # self.__board[1][6] = Field.black
-        # # self.__board[1][4] = Field.black
-        # self.__board[1][2] = Field.black
-        # # self.__board[3][4] = Field.black
-        # self.__board[5][2] = Field.black
-        # self.__board[3][2] = Field.black
+        # self.__board[1][0] = Field.black
+        # self.__board[3][0] = Field.black
+        # self.__board[7][0] = Field.black
+        # self.__board[4][1] = Field.black
+        # self.__board[6][1] = Field.black
+        # self.__board[7][2] = Field.black
+        # self.__board[0][3] = Field.black
+        # self.__board[2][3] = Field.black
+        # self.__board[4][3] = Field.black
+        # self.__board[6][3] = Field.white
+        # self.__board[1][6] = Field.white
+        # self.__board[3][6] = Field.white
+        # self.__board[5][6] = Field.white
+        # self.__board[7][6] = Field.white
+        # self.__board[0][7] = Field.white
+        # self.__board[2][7] = Field.white
+        # self.__board[4][7] = Field.white
+        # self.__board[6][7] = Field.white
+        # self.__white_turn = False
         for row in range(Const.ROW):
             for col in range(Const.COL):
                 if (row+col)%2:
@@ -235,28 +248,35 @@ class Board:
             self.capture_further(temp_board, new_start_col, new_start_row, new_end_col, new_end_row, list_of_captures, previous)      
     """
     def capture_further(self, board, start_col, start_row, end_col, end_row, current_path, list_of_captures):
-        current_path.append([(start_col,start_row),(end_col,end_row)])
-
-
+        if current_path is None:
+            current_path = [[(start_col,start_row),(end_col,end_row)]]
+        else:
+            current_path.append([(start_col,start_row),(end_col,end_row)])
+        temp_turn = board.get_turn()
         board.move(start_col,start_row,end_col,end_row)
+        if board.get_turn() != temp_turn:
+            list_of_captures.append(current_path)
+            return
         square = board.get_square(end_col, end_row)        
         counter = 0
         legal_captures = list()
         if square in [Field.white, Field.black]:
                 for i in [-1, 1]:
                     if board.legal_capture(end_col, end_row, end_col + 2*i, end_row + 2*board.direction()):
-
+                        print((end_col, end_row, end_col + 2*i, end_row + 2*board.direction()))
+                        print(board.get_square(4,3))
+                        print(board.get_turn())
+                        print("here")
+                        legal_captures.append((end_col, end_row,end_col + 2*i, end_row + 2*board.direction()))
                         counter += 1
         if square in [Field.white_king, Field.black_king]:
             for i in [-1, 1]:
                 for j in [-1, 1]:
                     if board.legal_capture(end_col, end_row, end_col + 2*j, end_row + 2*i):
+                        print("here")
                         legal_captures.append((end_col, end_row,end_col + 2*j, end_row + 2*i))
                         counter += 1
-        
-        if counter == 0:
-            list_of_captures.append(current_path)
-            return
+            
         for legal_capture in legal_captures:
             new_start_col, new_start_row, new_end_col, new_end_row = legal_capture
             new_board = deepcopy(board)
@@ -279,7 +299,8 @@ class Board:
                         counter += 1
                         temp_board = deepcopy(self)
                         captures = []
-                        self.capture_further(temp_board, col, row, col+2*i, row+2*self.direction(), [], captures)
+                        self.capture_further(temp_board, col, row, col+2*i, row+2*self.direction(), None, captures)
+                        print(captures)
                         for capture in captures:
                             all_captures.append(capture)
                         
@@ -289,9 +310,11 @@ class Board:
                     for j in [-1, 1]:
                         if self.legal_capture(col, row, col + 2*j, row + 2*i):
                             temp_board = deepcopy(self)
-                            captures = [[]]
+                            captures = []
                             counter += 1
-                            self.capture_further(temp_board, col, row, col+2*j, row+2*i, [], captures)
+                            self.capture_further(temp_board, col, row, col+2*j, row+2*i, None, captures)
+                            for capture in captures:
+                                print(capture)
                             for capture in captures:
                                 all_captures.append(capture)
 
@@ -361,7 +384,7 @@ class Board:
     def move(self, start_col, start_row, end_col, end_row):
         start_square = self.get_square(start_col, start_row)
 
-        if self.get_square(start_col, start_row) in [Field.white, Field.black, Field.white_king, Field.black_king]:
+        if start_square in [Field.white, Field.black, Field.white_king, Field.black_king]:
             if self.legal_capture(start_col, start_row, end_col, end_row):
                 self.reset_draw_counter()
                 self.set_square(start_col, start_row, Field.empty)

@@ -23,9 +23,9 @@ class GUIController:
         self.state = State.start
         self.WIN = None
         self.camera = None
-        self.opponent = False;
-        self.depth = 3;
-        self.camera_WN = False;
+        self.opponent = False
+        self.depth = 3
+        self.camera_WN = False
 
     def print_board(self):
         rect = ConstGraphic.background.get_rect()
@@ -49,19 +49,27 @@ class GUIController:
     def check_position(self, pos):
         _, possible_moves = self.board.count_moves()
         _, possible_captures = self.board.count_captures()
+        print(possible_moves)
+        print(possible_captures)
+        print(self.board.can_capture())
         x = (pos[0] - 40) // 80
         y = ((pos[1] - 40) // 80)
+        print(self.board.get_square(x,y))
         if self.marked:
             if possible_moves:
                 for move in possible_moves:
-                    start_col, start_row, end_col, end_row = move
+                    start, end = move[0]
+                    start_col, start_row = start
+                    end_col, end_row = end
                     if start_col == self.marked[0] and start_row == self.marked[1]:
                         if end_col == x and end_row == y:
                             self.board.move(start_col, start_row, end_col, end_row)
 
             if possible_captures:
                 for capture in possible_captures:
-                    start_col, start_row, end_col, end_row = capture
+                    start, end = capture[0]
+                    start_col, start_row = start
+                    end_col, end_row = end
                     if start_col == self.marked[0] and start_row == self.marked[1]:
                         if end_col == x and end_row == y:
                             self.board.move(start_col, start_row, end_col, end_row)
@@ -71,7 +79,9 @@ class GUIController:
 
         if possible_moves:
             for move in possible_moves:
-                start_col, start_row, end_col, end_row = move
+                start, end = move[0]
+                start_col, start_row = start
+                end_col, end_row = end
                 if start_col == x and start_row == y:
                     self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
                     self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
@@ -79,7 +89,9 @@ class GUIController:
                     self.marked = [start_col, start_row]
         if possible_captures:
             for capture in possible_captures:
-                start_col, start_row, end_col, end_row = capture
+                start, end = capture[0]
+                start_col, start_row = start
+                end_col, end_row = end
                 if start_col == x and start_row == y:
                     self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
                     self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
