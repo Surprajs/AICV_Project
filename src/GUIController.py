@@ -5,6 +5,7 @@ from enum import Enum
 from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
+from AI import AI
 
 
 class State(Enum):
@@ -16,9 +17,9 @@ class State(Enum):
 
 class GUIController:
 
-    def __init__(self, board, ai):
+    def __init__(self, board):
         self.board = board
-        self.ai = ai
+        self.ai = None
         self.marked = [None, None]
         self.state = State.start
         self.WIN = None
@@ -50,7 +51,6 @@ class GUIController:
         _, possible_moves = self.board.count_moves()
         _, possible_captures = self.board.count_captures()
 
-        print(self.board.can_capture())
         x = (pos[0] - 40) // 80
         y = ((pos[1] - 40) // 80)
         if self.marked:
@@ -185,6 +185,8 @@ class GUIController:
                         self.WIN = pygame.display.quit()
                     else:
                         self.menu_position(pos)
+        if self.opponent:
+            self.ai = AI(self.board, False, depth=self.depth)
         self.state = State.game
 
     def game(self):
@@ -201,8 +203,22 @@ class GUIController:
         while running:
             if self.camera_WN:
                 self.get_frame()
-            if self.ai.get_ai_color() == self.board.get_turn():
-                self.ai.play()
+            if self.opponent:
+                print(self.depth)
+                if self.ai.get_ai_color() == self.board.get_turn():
+                    self.ai.play()
+                    self.print_board()
+                    self.print_piece()
+                else:
+                    for event in pygame.event.get():
+                        if event.type == pygame.QUIT:
+                            if self.camera_WN:
+                                self.camera.release()
+                            pygame.quit()
+                            sys.exit()
+                        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                            pos = pygame.mouse.get_pos()
+                            self.check_position(pos)
             else:
                 for event in pygame.event.get():
                     if event.type == pygame.QUIT:
