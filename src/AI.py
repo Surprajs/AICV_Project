@@ -136,7 +136,7 @@ class AI:
 if __name__ == "__main__":
     b1 = Board()
     ai = AI(b1, depth=6)
-    t1 = TUIController(b1, ai, True)
+    t1 = TUIController(b1, ai,True)
     # ai.play()
     t1.play()
 
