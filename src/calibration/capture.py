@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 
 
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(1)
 
 width, height = 1280,720
 

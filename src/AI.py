@@ -120,6 +120,7 @@ class AI:
 
 
     def play(self):
+        print(self.depth)
         if not self.tree:
             self.tree = Tree(deepcopy(self.board))
         else:

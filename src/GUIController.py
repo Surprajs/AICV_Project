@@ -186,7 +186,7 @@ class GUIController:
                     else:
                         self.menu_position(pos)
         if self.opponent:
-            self.ai = AI(self.board, False, depth=self.depth)
+            self.ai = AI(self.board, depth=self.depth)
         self.state = State.game
 
     def game(self):
