@@ -66,6 +66,7 @@ class Board:
     # reset draw counter (if capture was made)
     def reset_draw_counter(self):
         self.__draw = 0
+    
     def print_board(self):
         translation = {Field.white : "w",
                 Field.white_king : "W",
@@ -84,6 +85,7 @@ class Board:
                     print(f"  {Const.ROW-row}", end="")
             print()
         print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
+
     # getters
     def get_board(self):
         return self.__board
@@ -408,10 +410,55 @@ class Board:
             return False
         return True
 
+    def create_fen(self):
+        fen = ""
+        empty_counter = 0
+        translation = {Field.white : "w",
+                Field.white_king : "W",
+                Field.black : "b",
+                Field.black_king : "B"}
+        for row in range(Const.ROW):
+            for col in range(Const.COL):
+                if (row+col)%2:
+                    square = self.get_square(col,row)
+                    if square == Field.empty:
+                        empty_counter += 1
+                    else:
+                        if empty_counter > 0:
+                            fen+= str(empty_counter)
+                        fen += translation[self.get_square(col,row)]
+                        empty_counter = 0
+            if empty_counter > 0:
+                fen+= str(empty_counter)
+            if row != Const.ROW-1:
+                fen += "/"
+            empty_counter = 0
+        return fen
+
+    def load_from_fen(self, fen):
+        self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]
+        translation = {"w" : Field.white,
+                "W" : Field.white_king,
+                "b" : Field.black,
+                "B" : Field.black_king}
+        squares = fen.split("/")
+        for row in range(Const.ROW):
+            col = 0 if row%2 else 1
+            for square in squares[row]:
+                if not square.isdigit():
+                    self.set_square(col, row, translation[square])
+                    col += 2
+                else:
+                    col += 2*int(square)
+        
 
 
 
 
-"""
 
-"""
+if __name__ == "__main__":
+    b1 = Board()
+    b1.print_board()
+    print(b1.create_fen())
+    b1.load_from_fen('bbbb/bbbb/b1bb/1b2/w3/1www/wwww/wwww')
+    b1.print_board()
