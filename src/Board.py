@@ -20,8 +20,8 @@ class Board:
         self.__draw = 0  # draw indicator
         self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]  # 8x8 board
         # self.__board[0][7] = Field.white_king
-        # self.__board[1][0] = Field.black
-        # self.__board[3][0] = Field.black
+        # self.__board[2][5] = Field.black
+        # # self.__board[3][0] = Field.black
         # self.__board[7][0] = Field.black
         # self.__board[4][1] = Field.black
         # self.__board[6][1] = Field.black

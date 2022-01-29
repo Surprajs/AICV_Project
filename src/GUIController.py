@@ -204,7 +204,7 @@ class GUIController:
             if self.camera_WN:
                 self.get_frame()
             if self.opponent:
-                print(self.depth)
+                # print(self.depth)
                 if self.ai.get_ai_color() == self.board.get_turn():
                     self.ai.play()
                     self.print_board()

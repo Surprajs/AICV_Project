@@ -58,7 +58,7 @@ class AI:
 
         if not node.is_external():
             # print("AAA")
-            minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
+            minmax_score = Const.SCORE_LOST-1 if is_maximizing else Const.SCORE_WIN+1
             for child in node.get_children():
                 score, _ = self.minmax(current_depth+1, child, alpha, beta, not is_maximizing)
                 if is_maximizing:
@@ -77,16 +77,11 @@ class AI:
             return score, best_node
         else:
             _, moves = node.get_value().count_moves()
-            _, captures = node.get_value().count_captures()
-            # if current_depth == 0:
-            #     for capture in captures:
-            #     #     print(capture)
-            #     # print("----")
-                
+            _, captures = node.get_value().count_captures()                
 
             moves.extend(captures)
             if moves:
-                minmax_score = Const.SCORE_LOST if is_maximizing else Const.SCORE_WIN
+                minmax_score = Const.SCORE_LOST-1 if is_maximizing else Const.SCORE_WIN+1
                 for move in moves:
                     new_board = deepcopy(node.get_value())
 
@@ -136,7 +131,7 @@ class AI:
         self.board.change_board(node.get_value())
         # print(self.board.get_turn())
         # self.board.print_board()
-        print(len(self.tree.get_children()))
+        # print(len(self.tree.get_children()))
         self.tree = self.tree.cut_tree(self.board.get_board())
         
 
