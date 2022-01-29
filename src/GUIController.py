@@ -100,8 +100,10 @@ class GUIController:
         _, frame = self.camera.read()
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        frame = cv2.resize(frame, (405,720))
+        # cv2.rectangle()
         surf = pygame.surfarray.make_surface(frame)
-        self.WIN.blit(surf, (760, 0))
+        self.WIN.blit(surf, (720, 0))
         if self.board.get_turn():
             self.WIN.blit(ConstGraphic.turnWhite, (760, 480))
         else:
@@ -194,6 +196,8 @@ class GUIController:
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
             self.WIN.blit(ConstGraphic.game_bg, (720, 0))
             self.camera = cv2.VideoCapture(0)
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         else:
             self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         pygame.display.set_caption('Checkers')
