@@ -61,7 +61,7 @@ class BoardRecognition:
         cv2.imshow("points", image_copy)
 if __name__ == "__main__":
     br1 = BoardRecognition()
-    image = br1.load_image("bb.png")
+    image = br1.load_image(".\calibration\calibration_images\photo-18-05-10.png")
     points = br1.get_points(image)
     br1.draw_points(image, points)
 

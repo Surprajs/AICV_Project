@@ -13,10 +13,12 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 while True:
     __, frame = camera.read()
+    frame_copy = np.copy(frame)
+    cv2.rectangle(frame, (280, 0), (1000, 719), (0,0,255), thickness=3)
     cv2.imshow("camera", cv2.pyrDown(frame))
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if cv2.waitKey(1) & 0xFF == ord('s'):
-        cv2.imwrite(f"calibration_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", frame)
+        cv2.imwrite(f"calibration_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", frame_copy[:, 280:1000])
 
         print(datetime.now().strftime("%H:%M:%S"))
