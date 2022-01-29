@@ -9,8 +9,8 @@ class ConstGraphic:
     kingWhite = pygame.image.load('./graphics/white_king_crown.png')
     source = pygame.image.load('./graphics/source.png')
     destination = pygame.image.load('./graphics/destination.png')
-    turnWhite = pygame.image.load('./graphics/w_turn.png')
-    turnBlack = pygame.image.load('./graphics/b_turn.png')
+    turnWhite = pygame.image.load('./graphics/buttons/white_to_move.png')
+    turnBlack = pygame.image.load('./graphics/buttons/black_to_move.png')
     depth_3 = pygame.image.load('./graphics/buttons/depth_3.png')
     depth_5 = pygame.image.load('./graphics/buttons/depth_5.png')
     depth_8 = pygame.image.load('./graphics/buttons/depth_8.png')
@@ -33,4 +33,8 @@ class ConstGraphic:
     start = pygame.image.load('./graphics/buttons/start.png')
     w_camera = pygame.image.load('./graphics/buttons/with_camera.png')
     w_camera_click = pygame.image.load('./graphics/buttons/with_camera_click.png')
+    evaluate = pygame.image.load('./graphics/buttons/evaluate.png')
+    p_aswhite = pygame.image.load('./graphics/buttons/play_as_white.png')
+    p_asblack = pygame.image.load('./graphics/buttons/play_as_black.png')
+
     

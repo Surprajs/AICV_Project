@@ -6,6 +6,9 @@ from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
 from AI import AI
+from datetime import datetime
+import numpy as np
+
 
 
 class State(Enum):
@@ -27,6 +30,8 @@ class GUIController:
         self.opponent = False
         self.depth = 3
         self.camera_WN = False
+        self.white_ai = False
+        self.frame_copy = None
 
     def print_board(self):
         rect = ConstGraphic.background.get_rect()
@@ -75,6 +80,9 @@ class GUIController:
             self.print_piece()
             self.marked = [None, None]
 
+            if pos[1] in range(600, 700+1) and pos[0] in range(740, 1420+1):
+                self.evaluate()
+
         if possible_moves:
             for move in possible_moves:
                 start, end = move[0]
@@ -98,17 +106,25 @@ class GUIController:
 
     def get_frame(self):
         _, frame = self.camera.read()
+        self.frame_copy = np.copy(frame)
+        cv2.rectangle(frame, (280, 0), (1000, 719), (0, 0, 255), thickness=3)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        frame = cv2.resize(frame, (405,720))
-        # cv2.rectangle()
+        frame = cv2.resize(frame, (405, 720))
         surf = pygame.surfarray.make_surface(frame)
-        self.WIN.blit(surf, (720, 0))
         if self.board.get_turn():
-            self.WIN.blit(ConstGraphic.turnWhite, (760, 480))
+            self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
+            self.WIN.blit(ConstGraphic.turnWhite, (955, 415))
+            self.WIN.blit(ConstGraphic.evaluate, (720, 580))
         else:
-            self.WIN.blit(ConstGraphic.turnBlack, (760, 480))
+            self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
+            self.WIN.blit(ConstGraphic.turnBlack, (958, 415))
+            self.WIN.blit(ConstGraphic.evaluate, (720, 580))
+        self.WIN.blit(surf, (720, 0))
         pygame.display.flip()
+
+    def evaluate(self):
+        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", self.frame_copy[:, 280:1000])git
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
@@ -118,6 +134,8 @@ class GUIController:
                 self.WIN.blit(ConstGraphic.depth_3_click, (45, 270))
                 self.WIN.blit(ConstGraphic.depth_5, (270, 270))
                 self.WIN.blit(ConstGraphic.depth_8, (495, 270))
+                self.WIN.blit(ConstGraphic.p_aswhite, (45, 585))
+                self.WIN.blit(ConstGraphic.p_asblack, (382, 585))
                 self.opponent = True
             if pos[0] in range(382, 675 + 1):
                 self.WIN.blit(ConstGraphic.menu_bg, (0, 0))
@@ -182,19 +200,32 @@ class GUIController:
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     pos = pygame.mouse.get_pos()
-                    if pos[0] in range(495, 675 + 1) and pos[1] in range(585, 675 + 2):
-                        running = False
-                        self.WIN = pygame.display.quit()
+                    if not self.opponent:
+                        if pos[0] in range(495, 675 + 1) and pos[1] in range(585, 675 + 2):
+                            running = False
+                            self.WIN = pygame.display.quit()
+                        else:
+                            self.menu_position(pos)
                     else:
-                        self.menu_position(pos)
+                        if pos[1] in range(585, 675 + 1):
+                            if pos[0] in range(45, 338 + 1):
+                                running = False
+                                self.WIN = pygame.display.quit()
+                                self.white_ai = False
+                            if pos[0] in range(382, 675 + 1):
+                                running = False
+                                self.WIN = pygame.display.quit()
+                                self.white_ai = True
+                        else:
+                            self.menu_position(pos)
         if self.opponent:
-            self.ai = AI(self.board, depth=self.depth)
+            self.ai = AI(self.board, white_ai=self.white_ai, depth=self.depth)
         self.state = State.game
 
     def game(self):
         if self.camera_WN:
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
-            self.WIN.blit(ConstGraphic.game_bg, (720, 0))
+            self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
             self.camera = cv2.VideoCapture(0)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
@@ -208,7 +239,6 @@ class GUIController:
             if self.camera_WN:
                 self.get_frame()
             if self.opponent:
-                # print(self.depth)
                 if self.ai.get_ai_color() == self.board.get_turn():
                     self.ai.play()
                     self.print_board()
@@ -276,7 +306,6 @@ class GUIController:
                         self.depth = 3
                         self.camera_WN = False
                         self.opponent = False
-
 
     def play(self):
         while self.state != State.end:
