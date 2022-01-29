@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 
 
-camera = cv2.VideoCapture(0)
+camera = cv2.VideoCapture(2) # 0 webcam, 2 external
 
 width, height = 1280,720
 
@@ -13,7 +13,7 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 while True:
     __, frame = camera.read()
-    cv2.imshow("camera", cv2.pyrDown(frame))
+    cv2.imshow("camera", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if cv2.waitKey(1) & 0xFF == ord('s'):
