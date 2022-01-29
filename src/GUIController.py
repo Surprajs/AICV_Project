@@ -124,7 +124,7 @@ class GUIController:
         pygame.display.flip()
 
     def evaluate(self):
-        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", self.frame_copy[:, 280:1000])git
+        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", self.frame_copy[:, 280:1000])
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
