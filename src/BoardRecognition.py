@@ -23,6 +23,8 @@ class BoardRecognition:
         return img_blur
 
     def get_points(self, image, min_line_length = 500, max_line_gap = 10):
+        cv2.imwrite("image.png", image)
+        # image = self.prepare_image(image)
         image_edges = cv2.Canny(image, 200, 225)
         # cv2.imshow("canny", image_edges)
         lines = cv2.HoughLines(image_edges, 1, np.pi / 180, 200, min_line_length, max_line_gap)
@@ -64,7 +66,7 @@ class BoardRecognition:
             cv2.line(image_copy, (x,y), (x,y), (0,255,0), 10)
             # print(f"x: {x}, y: {y}")
             # cv2.putText(image_copy,f"{idx}",(x,y),cv2.FONT_HERSHEY_COMPLEX,1,(0,255,0),2)
-        cv2.imshow(name, image_copy)
+        cv2.imwrite(name, image_copy)
         
 
     def crop_squares(self, image, points, name="board", save=False):
@@ -81,15 +83,17 @@ class BoardRecognition:
             if save:
                 cv2.imwrite(f"squares/{name}-{idx}.png", square)
             squares.append(square)
+            # cv2.imshow(f"{idx}", square)
+            # cv2.waitKey(100)
         return squares
 
     def create_fen(self, squares):
         fen = ""
         empty_counter = 0
-        # squares = np.asarray(squares)
+        translation = ["b", "B", "empty", "w", "W"]
         squares = np.reshape(squares, (8,4))
         print(squares.shape)
-        translation = ["b", "B", "empty", "w", "W"]
+
         for row in range(8):
             for col in range(4):
                 square = squares[row][col]
