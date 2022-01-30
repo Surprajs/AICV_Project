@@ -13,6 +13,7 @@ camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
 while True:
     __, frame = camera.read()
+    frame_copy = np.copy(frame)
     cv2.imshow("camera", frame)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break

@@ -82,13 +82,9 @@ class BoardRecognition:
 
 if __name__ == "__main__":
     br1 = BoardRecognition()
-<<<<<<< HEAD
     image = cv2.imread("board_images/photo-171226.png")
-=======
     # image = br1.load_image("photo-171516.png")
     image = br1.load_image("board_images/board-5.png")
-
->>>>>>> 0c6e6c644002b791e773fa54d436321c166659dd
     points = br1.get_points(image)
     br1.draw_points(image, points, "points")
     # br1.crop_squares(image, points)
