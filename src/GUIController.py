@@ -55,7 +55,7 @@ class GUIController:
     def check_position(self, pos):
         _, possible_moves = self.board.count_moves()
         _, possible_captures = self.board.count_captures()
-
+        possible_moves.extend(possible_captures)
         x = (pos[0] - 40) // 80
         y = ((pos[1] - 40) // 80)
         if self.marked:
@@ -68,20 +68,20 @@ class GUIController:
                         if end_col == x and end_row == y:
                             self.board.move(start_col, start_row, end_col, end_row)
 
-            if possible_captures:
-                for capture in possible_captures:
-                    start, end = capture[0]
-                    start_col, start_row = start
-                    end_col, end_row = end
-                    if start_col == self.marked[0] and start_row == self.marked[1]:
-                        if end_col == x and end_row == y:
-                            self.board.move(start_col, start_row, end_col, end_row)
+            # if possible_captures:
+            #     for capture in possible_captures:
+            #         start, end = capture[0]
+            #         start_col, start_row = start
+            #         end_col, end_row = end
+            #         if start_col == self.marked[0] and start_row == self.marked[1]:
+            #             if end_col == x and end_row == y:
+            #                 self.board.move(start_col, start_row, end_col, end_row)
             self.print_board()
             self.print_piece()
             self.marked = [None, None]
 
-            if pos[1] in range(600, 700+1) and pos[0] in range(740, 1420+1):
-                self.evaluate()
+        if pos[1] in range(600, 700+1) and pos[0] in range(740, 1420+1):
+            self.evaluate()
 
         if possible_moves:
             for move in possible_moves:
@@ -93,16 +93,16 @@ class GUIController:
                     self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
                     pygame.display.flip()
                     self.marked = [start_col, start_row]
-        if possible_captures:
-            for capture in possible_captures:
-                start, end = capture[0]
-                start_col, start_row = start
-                end_col, end_row = end
-                if start_col == x and start_row == y:
-                    self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
-                    self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
-                    pygame.display.flip()
-                    self.marked = [start_col, start_row]
+        # if possible_captures:
+        #     for capture in possible_captures:
+        #         start, end = capture[0]
+        #         start_col, start_row = start
+        #         end_col, end_row = end
+        #         if start_col == x and start_row == y:
+        #             self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
+        #             self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
+        #             pygame.display.flip()
+        #             self.marked = [start_col, start_row]
 
     def get_frame(self):
         _, frame = self.camera.read()
@@ -112,19 +112,16 @@ class GUIController:
         frame = cv2.rotate(frame, cv2.ROTATE_90_COUNTERCLOCKWISE)
         frame = cv2.resize(frame, (405, 720))
         surf = pygame.surfarray.make_surface(frame)
-        if self.board.get_turn():
-            self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.WIN.blit(ConstGraphic.turnWhite, (955, 415))
-            self.WIN.blit(ConstGraphic.evaluate, (720, 580))
-        else:
-            self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.WIN.blit(ConstGraphic.turnBlack, (958, 415))
-            self.WIN.blit(ConstGraphic.evaluate, (720, 580))
+        self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
+        self.WIN.blit(ConstGraphic.turnWhite, (955, 415)) if self.board.get_turn() else self.WIN.blit(ConstGraphic.turnBlack, (958, 415))
+        self.WIN.blit(ConstGraphic.evaluate, (720, 580))
         self.WIN.blit(surf, (720, 0))
         pygame.display.flip()
 
     def evaluate(self):
-        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", self.frame_copy[:, 280:1000])git
+        self.frame_copy = cv2.rotate(self.frame_copy, cv2.ROTATE_90_CLOCKWISE)
+        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H%M%S')}.png", self.frame_copy[280:1000, :])
+        print(datetime.now().strftime('%H-%M-%S'))
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
@@ -180,7 +177,7 @@ class GUIController:
 
         pygame.display.flip()
 
-    def start(self):
+    def show_default_start(self):
         self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         rect = ConstGraphic.background.get_rect()
         self.WIN.blit(ConstGraphic.menu_bg, rect)
@@ -191,11 +188,13 @@ class GUIController:
         self.WIN.blit(ConstGraphic.start, (495, 585))
         pygame.display.set_caption('Start')
         pygame.display.flip()
+
+    def start(self):
+        self.show_default_start()
         running = True
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.WIN = pygame.display.quit()
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
@@ -203,21 +202,19 @@ class GUIController:
                     if not self.opponent:
                         if pos[0] in range(495, 675 + 1) and pos[1] in range(585, 675 + 2):
                             running = False
-                            self.WIN = pygame.display.quit()
                         else:
                             self.menu_position(pos)
                     else:
                         if pos[1] in range(585, 675 + 1):
                             if pos[0] in range(45, 338 + 1):
                                 running = False
-                                self.WIN = pygame.display.quit()
                                 self.white_ai = False
                             if pos[0] in range(382, 675 + 1):
                                 running = False
-                                self.WIN = pygame.display.quit()
                                 self.white_ai = True
                         else:
                             self.menu_position(pos)
+        self.WIN = pygame.display.quit()
         if self.opponent:
             self.ai = AI(self.board, white_ai=self.white_ai, depth=self.depth)
         self.state = State.game
@@ -226,7 +223,7 @@ class GUIController:
         if self.camera_WN:
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
             self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.camera = cv2.VideoCapture(0)
+            self.camera = cv2.VideoCapture(1)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
         else:
@@ -290,22 +287,20 @@ class GUIController:
         while running:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    self.WIN = pygame.display.quit()
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                     pos = pygame.mouse.get_pos()
                     if pos[0] in range(765, 1058 + 1) and pos[1] in range(585, 675 + 2):
                         running = False
-                        self.WIN = pygame.display.quit()
                         self.state = State.end
                     elif pos[0] in range(1102, 1395 + 1) and pos[1] in range(585, 675 + 2):
                         running = False
-                        self.WIN = pygame.display.quit()
                         self.state = State.start
                         self.depth = 3
                         self.camera_WN = False
                         self.opponent = False
+        self.WIN = pygame.display.quit()
 
     def play(self):
         while self.state != State.end:
