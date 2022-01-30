@@ -5,6 +5,7 @@ from enum import Enum
 from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
+from BoardRecognition import BoardRecognition
 from AI import AI
 from datetime import datetime
 import numpy as np
@@ -23,6 +24,7 @@ class GUIController:
     def __init__(self, board):
         self.board = board
         self.ai = None
+        self.board_recognizer = None
         self.marked = [None, None]
         self.state = State.start
         self.WIN = None
@@ -124,7 +126,13 @@ class GUIController:
         pygame.display.flip()
 
     def evaluate(self):
-        cv2.imwrite(f"board_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", self.frame_copy[:, 280:1000])
+        board = self.frame_copy[:, 280:1000]
+        points = self.board_recognizer.get_points(board)
+        squares = self.board_recognizer.crop_squares(board, points)
+        fen = self.board_recognizer.create_fen(squares)
+        self.board.load_from_fen(fen)
+        self.print_board()
+        self.print_piece()
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
@@ -229,6 +237,7 @@ class GUIController:
             self.camera = cv2.VideoCapture(0)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            self.board_recognizer = BoardRecognition("new_new_model")
         else:
             self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         pygame.display.set_caption('Checkers')

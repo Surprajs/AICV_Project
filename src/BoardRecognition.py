@@ -5,12 +5,13 @@ import scipy.spatial as spatial
 import scipy.cluster as cluster
 from collections import defaultdict
 from datetime import datetime
+import tensorflow as tf
 
 
 
 class BoardRecognition:
-    def __init__(self):
-        pass
+    def __init__(self, path_to_model):
+        self.model = tf.keras.models.load_model(path_to_model)
 
 
     def load_image(self, filename):
@@ -66,28 +67,62 @@ class BoardRecognition:
         cv2.imshow(name, image_copy)
         
 
-    def crop_squares(self, image, points, name):
+    def crop_squares(self, image, points, name="board", save=False):
         if len(points) != 81:
             print("wrong number of points!")
             return
-        time = datetime.now().strftime("%H%M%S")
         coords = list(filter(lambda k: (k%2 == 1 and k%9 != 8), list(range(70))))
+        squares = list()
         for idx,coord in enumerate(coords):
             top_left, bottom_right = points[coord], points[coord+10]
             top_left_x, top_left_y = [int(x) for x in top_left]
             bottom_right_x, bottom_right_y = [int(x) for x in bottom_right]
-            # cv2.imshow(f"{time}-{idx}",image[top_left_y:bottom_right_y+1,top_left_x:bottom_right_x+1])
-            cv2.imwrite(f"squares/{name}-{idx}.png", image[top_left_y:bottom_right_y+1,top_left_x:bottom_right_x+1])
+            square = image[top_left_y:bottom_right_y+1,top_left_x:bottom_right_x+1]
+            if save:
+                cv2.imwrite(f"squares/{name}-{idx}.png", square)
+            squares.append(square)
+        return squares
+
+    def create_fen(self, squares):
+        fen = ""
+        empty_counter = 0
+        # squares = np.asarray(squares)
+        squares = np.reshape(squares, (8,4))
+        print(squares.shape)
+        translation = ["b", "B", "empty", "w", "W"]
+        for row in range(8):
+            for col in range(4):
+                square = squares[row][col]
+                square = cv2.resize(square, (224,224))
+                square = np.array(square)/255.0
+                square = square[np.newaxis, ...]
+                predicted = self.model.predict(square)[0]
+                idx = predicted.argmax()
+                if translation[idx] == "empty":
+                        empty_counter += 1
+                else:
+                    if empty_counter > 0:
+                        fen+= str(empty_counter)
+                    fen += translation[idx]
+                    empty_counter = 0
+            if empty_counter > 0:
+                fen+= str(empty_counter)
+            if row != 7:
+                fen += "/"
+            empty_counter = 0
+        return fen
 
 
 if __name__ == "__main__":
-    br1 = BoardRecognition()
+    br1 = BoardRecognition("new_new_model")
     # image = br1.load_image("photo-171516.png")
-    image = br1.load_image("board_images/board-5.png")
+    image = br1.load_image("board-22.png")
 
     points = br1.get_points(image)
-    br1.draw_points(image, points, "points")
-    # br1.crop_squares(image, points)
+    # br1.draw_points(image, points, "points")
+    squares = br1.crop_squares(image, points)
+    fen = br1.create_fen(squares)
+    print(fen)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
