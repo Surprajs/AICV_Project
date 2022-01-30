@@ -117,7 +117,6 @@ if __name__ == "__main__":
     br1 = BoardRecognition("new_new_model")
     # image = br1.load_image("photo-171516.png")
     image = br1.load_image("board-22.png")
-
     points = br1.get_points(image)
     # br1.draw_points(image, points, "points")
     squares = br1.crop_squares(image, points)
