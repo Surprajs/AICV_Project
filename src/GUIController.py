@@ -1,14 +1,12 @@
 import pygame
+import numpy as np
 import sys
 import cv2
 from enum import Enum
+
 from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
-
-from AI import AI
-import numpy as np
-
 
 
 class State(Enum):
@@ -33,6 +31,9 @@ class GUIController:
         self.camera_WN = False
         self.white_ai = False
         self.frame_copy = None
+        self.new_camera_matrix = None
+        self.mtx = None
+        self.dist = None
 
     def print_board(self):
         rect = ConstGraphic.background.get_rect()
@@ -107,6 +108,7 @@ class GUIController:
 
     def get_frame(self):
         _, frame = self.camera.read()
+        frame = cv2.undistort(frame, self.mtx, self.dist, None, self.new_camera_matrix)
         self.frame_copy = np.copy(frame)
         cv2.rectangle(frame, (280, 0), (1000, 719), (0, 0, 255), thickness=3)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -236,9 +238,13 @@ class GUIController:
             from BoardRecognition import BoardRecognition
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
             self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.camera = cv2.VideoCapture(0)
-            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
+            self.camera = cv2.VideoCapture(2)
+            width, height = 1280, 720
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            with np.load("calibration/camera_parameters.npz") as file:
+                self.mtx, self.dist = file["mtx"], file["dist"]
+            self.new_camera_matrix, _ = cv2.getOptimalNewCameraMatrix(self.mtx,self.dist, (width,height), 0, (width,height))
             self.board_recognizer = BoardRecognition()
         else:
             self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))

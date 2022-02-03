@@ -21,7 +21,7 @@ class BoardRecognition:
 
         lines = cv2.HoughLines(image_edges, 1, np.pi / 180, 200, 500, 10)
 
-        if not lines:
+        if not len(lines):
             return []
         
         lines = np.reshape(lines, (-1, 2))
@@ -33,7 +33,7 @@ class BoardRecognition:
             elif 70*np.pi/180 < theta < 110*np.pi/180:
                 horizontal_lines.append([rho, theta])
 
-        if not horizontal_lines or not vertical_lines:
+        if not len(horizontal_lines) or not len(vertical_lines):
             return []
         
         intersection_points = list()
