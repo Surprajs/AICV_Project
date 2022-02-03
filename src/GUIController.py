@@ -5,9 +5,8 @@ from enum import Enum
 from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
-from BoardRecognition import BoardRecognition
+
 from AI import AI
-from datetime import datetime
 import numpy as np
 
 
@@ -228,14 +227,16 @@ class GUIController:
                             self.menu_position(pos)
         self.WIN = pygame.display.quit()
         if self.opponent:
+            from AI import AI
             self.ai = AI(self.board, white_ai=self.white_ai, depth=self.depth)
         self.state = State.game
 
     def game(self):
         if self.camera_WN:
+            from BoardRecognition import BoardRecognition
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
             self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.camera = cv2.VideoCapture(1)
+            self.camera = cv2.VideoCapture(0)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
             self.board_recognizer = BoardRecognition("new_new_model")
