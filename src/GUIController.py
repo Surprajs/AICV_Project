@@ -2,11 +2,10 @@ import pygame
 import sys
 import cv2
 from enum import Enum
+
 from Const import Const
 from ConstGraphic import ConstGraphic
 from Board import Field
-from BoardRecognition import BoardRecognition
-from AI import AI
 import numpy as np
 
 
@@ -32,6 +31,9 @@ class GUIController:
         self.camera_WN = False
         self.white_ai = False
         self.frame_copy = None
+        self.new_camera_matrix = None
+        self.mtx = None
+        self.dist = None
 
     def print_board(self):
         rect = ConstGraphic.background.get_rect()
@@ -58,7 +60,6 @@ class GUIController:
         possible_moves.extend(possible_captures)
         x = (pos[0] - 40) // 80
         y = ((pos[1] - 40) // 80)
-
         if not self.camera_WN:
             if self.marked:
                 if possible_moves:
@@ -88,8 +89,10 @@ class GUIController:
         if pos[1] in range(600, 700 + 1) and pos[0] in range(740, 1420 + 1):
             self.evaluate()
 
+
     def get_frame(self):
         _, frame = self.camera.read()
+        frame = cv2.undistort(frame, self.mtx, self.dist, None, self.new_camera_matrix)
         self.frame_copy = np.copy(frame)
         cv2.rectangle(frame, (280, 0), (1000, 719), (0, 0, 255), thickness=3)
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
@@ -107,13 +110,15 @@ class GUIController:
         board = self.frame_copy[:, 280:1001]
         board = cv2.flip(board, 1)
         points = self.board_recognizer.get_points(board)
-        self.board_recognizer.draw_points(board, points, "points.png")
         squares = self.board_recognizer.crop_squares(board, points)
-        fen = self.board_recognizer.create_fen(squares)
-        self.board.load_from_fen(fen)
-        self.board.change_move()
-        self.print_board()
-        self.print_piece()
+        if squares:
+            fen = self.board_recognizer.create_fen(squares)
+            self.board.load_from_fen(fen)
+            self.board.change_move()
+            self.print_board()
+            self.print_piece()
+        else:
+            print("board could not be recognized")
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
@@ -209,17 +214,23 @@ class GUIController:
         pygame.mouse.set_pos(0, 0)
         self.WIN = pygame.display.quit()
         if self.opponent:
+            from AI import AI
             self.ai = AI(self.board, white_ai=self.white_ai, depth=self.depth)
         self.state = State.game
 
     def game(self):
         if self.camera_WN:
+            from BoardRecognition import BoardRecognition
             self.WIN = pygame.display.set_mode((Const.WIDTH_CAM, Const.HEIGHT))
             self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-            self.camera = cv2.VideoCapture(0)
-            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
-            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-            self.board_recognizer = BoardRecognition("new_new_model")
+            self.camera = cv2.VideoCapture(1)
+            width, height = 1280, 720
+            self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+            self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
+            with np.load("calibration/camera_parameters.npz") as file:
+                self.mtx, self.dist = file["mtx"], file["dist"]
+            self.new_camera_matrix, _ = cv2.getOptimalNewCameraMatrix(self.mtx,self.dist, (width,height), 0, (width,height))
+            self.board_recognizer = BoardRecognition()
         else:
             self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         pygame.display.set_caption('Checkers')
