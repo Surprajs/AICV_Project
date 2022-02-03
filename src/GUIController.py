@@ -122,11 +122,13 @@ class GUIController:
 
     def evaluate(self):
         board = self.frame_copy[:, 280:1000]
+        board = cv2.flip(board,1)
         points = self.board_recognizer.get_points(board)
         squares = self.board_recognizer.crop_squares(board, points)
         if squares:
             fen = self.board_recognizer.create_fen(squares)
             self.board.load_from_fen(fen)
+            self.board.change_move()
             self.print_board()
             self.print_piece()
         else:
