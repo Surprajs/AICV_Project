@@ -1,5 +1,12 @@
-src/calibration/calibration_images
+src/calibration/calibration_images/*.png
+src/board_images/*.png
+src/squares/black
+src/squares/black_king
+src/squares/empty
+src/squares/white
+src/squares/white_king
 src/__pycache__
 *.code-workspace
-src/CameraTest.py
+
+
 
