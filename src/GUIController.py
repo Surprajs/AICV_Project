@@ -7,9 +7,7 @@ from ConstGraphic import ConstGraphic
 from Board import Field
 from BoardRecognition import BoardRecognition
 from AI import AI
-from datetime import datetime
 import numpy as np
-
 
 
 class State(Enum):
@@ -71,15 +69,6 @@ class GUIController:
                         if start_col == self.marked[0] and start_row == self.marked[1]:
                             if end_col == x and end_row == y:
                                 self.board.move(start_col, start_row, end_col, end_row)
-
-                # if possible_captures:
-                #     for capture in possible_captures:
-                #         start, end = capture[0]
-                #         start_col, start_row = start
-                #         end_col, end_row = end
-                #         if start_col == self.marked[0] and start_row == self.marked[1]:
-                #             if end_col == x and end_row == y:
-                #                 self.board.move(start_col, start_row, end_col, end_row)
                 self.print_board()
                 self.print_piece()
                 self.marked = [None, None]
@@ -96,18 +85,8 @@ class GUIController:
                         pygame.display.flip()
                         self.marked = [start_col, start_row]
 
-        if pos[1] in range(600, 700+1) and pos[0] in range(740, 1420+1):
+        if pos[1] in range(600, 700 + 1) and pos[0] in range(740, 1420 + 1):
             self.evaluate()
-        # if possible_captures:
-        #     for capture in possible_captures:
-        #         start, end = capture[0]
-        #         start_col, start_row = start
-        #         end_col, end_row = end
-        #         if start_col == x and start_row == y:
-        #             self.WIN.blit(ConstGraphic.source, (start_col * 80 + 40, start_row * 80 + 40))
-        #             self.WIN.blit(ConstGraphic.destination, (end_col * 80 + 40, end_row * 80 + 40))
-        #             pygame.display.flip()
-        #             self.marked = [start_col, start_row]
 
     def get_frame(self):
         _, frame = self.camera.read()
@@ -118,26 +97,23 @@ class GUIController:
         frame = cv2.resize(frame, (405, 720))
         surf = pygame.surfarray.make_surface(frame)
         self.WIN.blit(ConstGraphic.menu_bg, (720, 0))
-        self.WIN.blit(ConstGraphic.turnWhite, (955, 415)) if self.board.get_turn() else self.WIN.blit(ConstGraphic.turnBlack, (958, 415))
+        self.WIN.blit(ConstGraphic.turnWhite, (955, 415)) if self.board.get_turn() else self.WIN.blit(
+            ConstGraphic.turnBlack, (958, 415))
         self.WIN.blit(ConstGraphic.evaluate, (720, 580))
         self.WIN.blit(surf, (720, 0))
         pygame.display.flip()
 
     def evaluate(self):
-        # self.frame_copy = cv2.rotate(self.frame_copy, cv2.ROTATE_90_COUNTERCLOCKWISE)
         board = self.frame_copy[:, 280:1001]
         board = cv2.flip(board, 1)
         points = self.board_recognizer.get_points(board)
         self.board_recognizer.draw_points(board, points, "points.png")
         squares = self.board_recognizer.crop_squares(board, points)
         fen = self.board_recognizer.create_fen(squares)
-        print(fen)
         self.board.load_from_fen(fen)
         self.board.change_move()
         self.print_board()
         self.print_piece()
-
-
 
     def menu_position(self, pos):
         if pos[1] in range(45, 225 + 1):
@@ -230,7 +206,7 @@ class GUIController:
                                 self.white_ai = True
                         else:
                             self.menu_position(pos)
-        pygame.mouse.set_pos(0,0)
+        pygame.mouse.set_pos(0, 0)
         self.WIN = pygame.display.quit()
         if self.opponent:
             self.ai = AI(self.board, white_ai=self.white_ai, depth=self.depth)

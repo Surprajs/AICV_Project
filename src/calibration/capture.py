@@ -3,7 +3,7 @@ import numpy as np
 from datetime import datetime
 
 
-camera = cv2.VideoCapture(1)
+camera = cv2.VideoCapture(0)
 
 width, height = 1280, 720
 
@@ -18,6 +18,5 @@ while True:
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
     if cv2.waitKey(1) & 0xFF == ord('s'):
-        cv2.imwrite(f"calibration_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", frame_copy[:, 280:1000])
-
+        cv2.imwrite(f"calibration_images/photo-{datetime.now().strftime('%H-%M-%S')}.png", frame) #frame_copy[:, 280:1000])
         print(datetime.now().strftime("%H:%M:%S"))
