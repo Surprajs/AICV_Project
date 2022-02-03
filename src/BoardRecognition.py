@@ -9,7 +9,7 @@ import tensorflow as tf
 
 
 class BoardRecognition:
-    def __init__(self, path_to_model):
+    def __init__(self, path_to_model="pieces_recognition_model"):
         self.model = tf.keras.models.load_model(path_to_model)
 
 

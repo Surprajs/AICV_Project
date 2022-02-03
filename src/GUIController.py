@@ -239,7 +239,7 @@ class GUIController:
             self.camera = cv2.VideoCapture(0)
             self.camera.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
             self.camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
-            self.board_recognizer = BoardRecognition("new_new_model")
+            self.board_recognizer = BoardRecognition()
         else:
             self.WIN = pygame.display.set_mode((Const.WIDTH, Const.HEIGHT))
         pygame.display.set_caption('Checkers')
