@@ -16,56 +16,26 @@ class Field(Enum):
 class Board:
 
     def __init__(self):
-        self.__white_turn = True  # move indicator
-        self.__draw = 0  # draw indicator
-        self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]  # 8x8 board
-        # self.__board[0][7] = Field.white_king
-        # self.__board[2][5] = Field.black
-        # # self.__board[3][0] = Field.black
-        # self.__board[7][0] = Field.black
-        # self.__board[4][1] = Field.black
-        # self.__board[6][1] = Field.black
-        # self.__board[7][2] = Field.black
-        # self.__board[0][3] = Field.black
-        # self.__board[2][3] = Field.black
-        # self.__board[4][3] = Field.black
-        # self.__board[6][3] = Field.white
-        # self.__board[1][6] = Field.white
-        # self.__board[3][6] = Field.white
-        # self.__board[5][6] = Field.white
-        # self.__board[7][6] = Field.white
-        # self.__board[0][7] = Field.white
-        # self.__board[2][7] = Field.white
-        # self.__board[4][7] = Field.white
-        # self.__board[6][7] = Field.white
-        # self.__white_turn = False
-        for row in range(Const.ROW):
-            for col in range(Const.COL):
-                if (row+col)%2:
-                    if row <= 2:
-                        self.__board[col][row] = Field.black
-                    elif row >= 5: 
-                        self.__board[col][row] = Field.white
-                else:
-                    self.__board[col][row] == Field.out_of_play
-                
-
-
+        self.white_turn = True  # move indicator
+        self.draw = 0  # draw indicator
+        self.board = None  # 8x8 board
+        self.load_from_fen("bbbb/bbbb/bbbb/4/4/wwww/wwww/wwww")
+  
 
     def set_square(self, col, row, ch):
-        self.__board[col][row] = ch
+        self.board[col][row] = ch
 
     # change move indicator
     def change_move(self):
-        self.__white_turn = not self.__white_turn
+        self.white_turn = not self.white_turn
 
     # increase draw counter (if no capture were made)
     def increase_draw_counter(self):
-        self.__draw += 1
+        self.draw += 1
 
     # reset draw counter (if capture was made)
     def reset_draw_counter(self):
-        self.__draw = 0
+        self.draw = 0
     
     def print_board(self):
         translation = {Field.white : "w",
@@ -75,7 +45,7 @@ class Board:
                 Field.empty : "_",
                 Field.out_of_play : "_"}
         print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
-        b = self.__board
+        b = self.board
         for row in range(Const.ROW):
             for col in range(Const.COL):
                 if col == 0:
@@ -88,40 +58,40 @@ class Board:
 
     # getters
     def get_board(self):
-        return self.__board
+        return self.board
 
     def get_square(self, col, row):
         if col not in range(0,8) or row not in range(0,8):
             return Field.out_of_play
-        return self.__board[col][row]
+        return self.board[col][row]
 
     def get_draw(self):
-        return self.__draw
+        return self.draw
 
     def change_board(self, new_board):
-        self.__board = new_board.get_board()
-        self.__draw = new_board.get_draw()
-        self.__white_turn = new_board.get_turn()
+        self.board = new_board.get_board()
+        self.draw = new_board.get_draw()
+        self.white_turn = new_board.get_turn()
 
 
     def get_turn(self):
-        return self.__white_turn
+        return self.white_turn
 
     def is_enemy(self, col, row):
-        if self.__white_turn:
+        if self.white_turn:
             return self.get_square(col, row) in [Field.black, Field.black_king]
         else:
             return self.get_square(col, row) in [Field.white, Field.white_king]
 
     def is_friend(self, col, row):
-        if self.__white_turn:
+        if self.white_turn:
             return self.get_square(col, row) in [Field.white, Field.white_king]
         else:
             return self.get_square(col, row) in [Field.black, Field.black_king]
 
     # returns direction as a number, useful for adding to initial position of the piece when it moves
     def direction(self):
-        return -1 if self.__white_turn else 1
+        return -1 if self.white_turn else 1
 
     # no paramters: checks for captures in general, paramters: checks if particular piece can capture
     def can_capture(self, col=None, row=None):
@@ -200,7 +170,6 @@ class Board:
     def legal_capture(self, start_col, start_row, end_col, end_row):
         if [abs(end_col - start_col), abs(end_row - start_row)] != [2, 2]:
             return False
-
         start_square = self.get_square(start_col, start_row)
         end_square = self.get_square(end_col, end_row)
         row_between = (start_row + end_row)//2
@@ -212,43 +181,6 @@ class Board:
         if start_square in [Field.white_king, Field.black_king]:
             return end_square == Field.empty and abs(end_row - start_row) == 2 and self.is_enemy(col_between, row_between)
 
-    """ 
-    def capture_further(self, board, start_col, start_row, end_col, end_row, list_of_captures, previous):
-        idx = 0
-        if previous in list_of_captures:
-            idx = list_of_captures.index(previous)
-        list_of_captures[idx] += [(start_col,start_row),(end_col,end_row)]
-            
-        board.move(start_col,start_row,end_col,end_row)
-        square = board.get_square(end_col, end_row)
-        counter = 0
-        legal_captures = list()
-        if square in [Field.white, Field.black]:
-                for i in [-1, 1]:
-                    if board.legal_capture(end_col, end_row, end_col + 2*i, end_row + 2*board.direction()):
-                        legal_captures.append((end_col,end_row,end_col+2*i, end_row+2*board.direction()))
-                        counter += 1       
-        if square in [Field.white_king, Field.black_king]:
-            for i in [-1, 1]:
-                for j in [-1, 1]:
-                    if board.legal_capture(end_col, end_row, end_col + 2*j, end_row + 2*i):
-                        legal_captures.append((end_col, end_row,end_col + 2*j, end_row + 2*i))
-                        counter += 1
-        if counter > 1:
-            for _ in range(counter):
-                last = deepcopy(list_of_captures[idx])
-                list_of_captures.append(last)
-            del list_of_captures[idx]
-        for legal_capture in legal_captures:
-            temp_board = deepcopy(board)
-            new_start_col, new_start_row, new_end_col, new_end_row = legal_capture
-            previous = 0
-            for i, captures in enumerate(list_of_captures):
-               if captures[-1] == (end_col,end_row) and captures[-2] == (start_col,start_row):
-                   previous = list_of_captures[i]
-                   break
-            self.capture_further(temp_board, new_start_col, new_start_row, new_end_col, new_end_row, list_of_captures, previous)      
-    """
     def capture_further(self, board, start_col, start_row, end_col, end_row, current_path, list_of_captures):
         if current_path is None:
             current_path = [[(start_col,start_row),(end_col,end_row)]]
@@ -314,7 +246,7 @@ class Board:
 
             return counter, all_captures
         else:  # no parameters passed, counts all possible captures
-            if self.__white_turn:
+            if self.white_turn:
                 for row in range(Const.ROW):
                     for col in range(Const.COL):
                         if self.get_square(col, row) in [Field.white, Field.white_king]:
@@ -352,7 +284,7 @@ class Board:
         else:  # no parameters passed, counts all possible moves
             if self.can_capture():
                 return counter, all_moves
-            if self.__white_turn:
+            if self.white_turn:
                 for row in range(Const.ROW):
                     for col in range(Const.COL):
                         if self.get_square(col, row) in [Field.white, Field.white_king]:
@@ -371,7 +303,7 @@ class Board:
 
     # at the end of the turn checks if any of the piece is at the first row of the opposite color (if yes, promote it)
     def promotion(self):
-        for col in self.__board:
+        for col in self.board:
             col[0] = Field.white_king if col[0] == Field.white else col[0]
             col[7] = Field.black_king if col[7] == Field.black else col[7]
 
@@ -389,7 +321,9 @@ class Board:
                     self.change_move()
             elif self.legal_move(start_col, start_row, end_col, end_row):
                 if start_square in [Field.white_king, Field.black_king]:
-                    self.increase_draw_counter() ## TU CHYBA INACZEJ???
+                    self.increase_draw_counter()
+                else:
+                    self.reset_draw_counter()
                 self.set_square(start_col, start_row, Field.empty)
                 self.set_square(end_col, end_row, start_square)
                 self.change_move()
@@ -401,7 +335,7 @@ class Board:
         return True
 
     def is_draw(self):
-        return self.__draw > Const.DRAW
+        return self.draw > Const.DRAW
 
     def is_end(self):
         if self.is_draw():
@@ -436,7 +370,7 @@ class Board:
         return fen
 
     def load_from_fen(self, fen):
-        self.__board = [[Field.empty for _ in range(8)] for _ in range(8)]
+        self.board = [[Field.empty for _ in range(8)] for _ in range(8)]
         translation = {"w" : Field.white,
                 "W" : Field.white_king,
                 "b" : Field.black,
@@ -450,15 +384,3 @@ class Board:
                     col += 2
                 else:
                     col += 2*int(square)
-        
-
-
-
-
-
-if __name__ == "__main__":
-    b1 = Board()
-    b1.print_board()
-    print(b1.create_fen())
-    b1.load_from_fen('bbbb/bbbb/b1bb/1b2/w3/1www/wwww/wwww')
-    b1.print_board()

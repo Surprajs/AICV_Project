@@ -22,14 +22,13 @@ class TUIController:
             print(f"Legal moves: {moves_counter}")
             if possible_moves:
                 for move in possible_moves:
-                    print(move)
+                    # print(move)
                     for m in move:
                         start, end = m
                         start_col, start_row = start
                         end_col, end_row = end
                         print(f"{self.letter(start_col)}{8-start_row}->{self.letter(end_col)}{8-end_row}", end=" ")
-                    print()
-            print(f"Legal captures: {captures_counter}")
+            print(f"\nLegal captures: {captures_counter}")
             if possible_captures:
                 for capture in possible_captures:
                     print(capture)
@@ -59,12 +58,12 @@ class TUIController:
                     print(f"  {Const.ROW-row}", end="")
             print()
         print(f"   {''.join([f' {chr(i)} ' for i in range(ord('a'),ord('h')+1)])}")
+        print(f"FEN: {self.board.create_fen()}")
 
     def play(self):
         running = True
         while running:
             self.print_board(self.debug)
-            print(self.board.create_fen())
             print("Input moves as a combination of letter and digit, e.g. a3 or f4.")
             start = input("Start: ")
             if len(start)==2 and start[0] in "abcdefgh" and start[1] in "12345678":
